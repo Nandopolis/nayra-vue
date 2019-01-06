@@ -5,9 +5,12 @@ import Routers from "./router";
 import Util from "./libs/util";
 import App from "./app.vue";
 import "iview/dist/styles/iview.css";
+import Vuex from "vuex";
+import store from "./store";
 
 Vue.use(VueRouter);
 Vue.use(iView);
+Vue.use(Vuex);
 
 // 路由配置
 const RouterConfig = {
@@ -29,6 +32,7 @@ router.afterEach((to, from, next) => {
 
 new Vue({
   el: "#app",
+  store,
   router: router,
   render: h => h(App)
 });

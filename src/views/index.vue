@@ -34,42 +34,165 @@
       <Layout>
         <Sider hide-trigger :style="{background: '#fff'}">
           <Menu theme="light" width="auto" :open-names="['1', '2']" @on-select="action">
-            <Submenu name="1">
+            <Submenu v-for="menu in sider_menus" :key="menu.id" :name="menu.name">
               <template slot="title">
-                <Icon type="ios-pulse"></Icon>Audios
+                <Icon :type="menu.icon"></Icon>
+                {{menu.display}}
               </template>
-              <MenuItem name="upload">Upload</MenuItem>
-              <MenuItem name="rename_audio">Rename</MenuItem>
-              <MenuItem name="delete_audio">Delete</MenuItem>
-            </Submenu>
-            <Submenu name="2">
-              <template slot="title">
-                <Icon type="ios-code"></Icon>Diagrams
-              </template>
-              <MenuItem name="new">Create</MenuItem>
-              <MenuItem name="rename">Rename</MenuItem>
-              <MenuItem name="delete">Delete</MenuItem>
+              <MenuItem v-for="item in menu.items" :key="item.id" :name="item.name">{{item.display}}</MenuItem>
             </Submenu>
           </Menu>
         </Sider>
         <Content :style="{padding: '24px', minHeight: '600px', maxHeight: '600px'}">
-          <Breadcrumb :style="{margin: '0 0 24px'}">
+          <Breadcrumb :style="{margin: '0 0 24px', float: 'left'}">
             <BreadcrumbItem>Diagrams</BreadcrumbItem>
-            <BreadcrumbItem>New Diagram</BreadcrumbItem>
+            <BreadcrumbItem>{{openedDiagram.name}}</BreadcrumbItem>
           </Breadcrumb>
+          <Button
+            :style="{margin: '0 10px 0', float: 'right'}"
+            shape="circle"
+            icon="md-done-all"
+            @click="update_content"
+          >Save</Button>
+          <Button
+            :style="{margin: '0 10px 0', float: 'right'}"
+            shape="circle"
+            icon="md-resize"
+            @click="resize"
+          >Resize</Button>
           <ReteComp
             :style="{background: '#fff', maxHeight: '500px', maxWidth: '1050px'}"
-            :editor-json="newEditorJson"
-            @update:editor-json="val => editorJson = val"
+            :editor-json="openedDiagram.content"
+            ref="reteComp"
           />
         </Content>
       </Layout>
-      {{newEditorJson}}
+      <Modal
+        v-model="open_modal"
+        title="Saved diagrams"
+        width="80%"
+        ok-text="Open"
+        cancel-text="Cancel"
+        @on-ok="open"
+        @on-cancel="open_modal=false"
+      >
+        <Table
+          highlight-row
+          :columns="columns"
+          :data="diagrams"
+          @on-current-change="val => diagram_id = val.id"
+        ></Table>
+      </Modal>
+
+      <Modal
+        v-model="save_modal"
+        title="Save diagram"
+        width="80%"
+        ok-text="Save"
+        cancel-text="Cancel"
+        @on-ok="save"
+        @on-cancel="save_modal=false"
+      >
+        <Form :model="formSave" :rules="ruleSave">
+          <FormItem label="Nombre">
+            <Input type="text" v-model="formSave.name" placeholder="Nombre"></Input>
+          </FormItem>
+          <FormItem label="Description">
+            <Input type="text" v-model="formSave.description" placeholder="Descripción"></Input>
+          </FormItem>
+        </Form>
+      </Modal>
+
+      <Modal
+        v-model="rename_modal"
+        title="Edit diagram"
+        width="80%"
+        ok-text="Save"
+        cancel-text="Cancel"
+        @on-ok="update_metadata"
+        @on-cancel="rename_modal=false"
+      >
+        <Form :model="formSave" :rules="ruleSave">
+          <FormItem label="Nombre">
+            <Input type="text" v-model="formSave.name" placeholder="Nombre"></Input>
+          </FormItem>
+          <FormItem label="Description">
+            <Input type="text" v-model="formSave.description" placeholder="Descripción"></Input>
+          </FormItem>
+        </Form>
+      </Modal>
+
+      <Modal v-model="edit_audio_modal" title="Edit Audios" width="80%">
+        <Table
+          highlight-row
+          v-if="audios"
+          :columns="columns_audio"
+          :data="this.audios"
+          @on-current-change="val => audio_id = val.id"
+        ></Table>
+        <div slot="footer">
+          <Button type="info" @click="rename_audio">Rename</Button>
+          <Button type="error" @click="delete_audio">Delete</Button>
+        </div>
+      </Modal>
+
+      <Modal
+        v-model="rename_audio_modal"
+        title="Rename audio"
+        width="80%"
+        ok-text="Save"
+        cancel-text="Cancel"
+        @on-ok="rename_content_audio"
+        @on-cancel="rename_audio_modal=false"
+      >Desccripción
+        <Input type="text" v-model="audioContent" placeholder="Descripción"></Input>
+      </Modal>
+
+      <Modal
+        v-model="upld_audio_modal"
+        title="Upload audio"
+        width="80%"
+        ok-text="Upload"
+        cancel-text="Cancel"
+        @on-ok="upload_audio"
+        @on-cancel="upld_audio_modal=false"
+      >
+        <Form :model="formAudio">
+          <FormItem label="Nombre">
+            <Input type="text" v-model="formAudio.content" placeholder="Nombre"></Input>
+          </FormItem>
+          <FormItem label="Archivo">
+            <Upload :before-upload="handleUpload" action="http://192.168.1.7:5000/api/audios">
+              <Button icon="ios-cloud-upload-outline">Select the file to upload</Button>
+            </Upload>
+          </FormItem>
+        </Form>
+      </Modal>
+
+      <Modal
+        v-model="delete_modal"
+        title="Delete diagram"
+        width="80%"
+        ok-text="Delete"
+        cancel-text="Cancel"
+        @on-ok="del"
+        @on-cancel="delete_modal=false"
+      >
+        <Table
+          highlight-row
+          :columns="columns"
+          :data="diagrams"
+          @on-current-change="val => diagram_id = val.id"
+        ></Table>
+      </Modal>
+      {{diagram}}
     </Layout>
   </div>
 </template>
 <script>
 import ReteComp from "./ReteComp";
+import * as Diagrams from "../libs/SavedDiagrams.js";
+import axios from "axios";
 
 export default {
   name: "Index",
@@ -80,62 +203,360 @@ export default {
     header_menus: [
       { id: 1, name: "new", display: "New", icon: "ios-create" },
       { id: 2, name: "open", display: "Open", icon: "ios-folder-open" },
-      { id: 3, name: "save", display: "Save", icon: "ios-paper" },
+      { id: 3, name: "save", display: "Save as", icon: "ios-paper" },
       { id: 4, name: "run", display: "Run", icon: "ios-play" },
       { id: 5, name: "stop", display: "Stop", icon: "ios-pause" },
       { id: 6, name: "help", display: "Help", icon: "md-help" }
     ],
-    editorJson: {
-      id: "demo@0.1.0",
-      nodes: {
-        "1": {
-          id: 1,
-          data: { num: 2 },
-          inputs: {},
-          outputs: {
-            num: {
-              connections: [{ node: 3, input: "num1", data: { pins: [] } }]
-            }
-          },
-          position: [80, 200],
-          name: "Number"
-        },
-        "2": {
-          id: 2,
-          data: { num: 0 },
-          inputs: {},
-          outputs: {
-            num: {
-              connections: [{ node: 3, input: "num2", data: { pins: [] } }]
-            }
-          },
-          position: [80, 400],
-          name: "Number"
-        },
-        "3": {
-          id: 3,
-          data: {},
-          inputs: {
-            num1: {
-              connections: [{ node: 1, output: "num", data: { pins: [] } }]
-            },
-            num2: {
-              connections: [{ node: 2, output: "num", data: { pins: [] } }]
-            }
-          },
-          outputs: { num: { connections: [] } },
-          position: [500, 240],
-          name: "Add"
-        }
+    sider_menus: [
+      {
+        id: 1,
+        name: "1",
+        display: "Audios",
+        icon: "ios-pulse",
+        items: [
+          { id: 1, name: "upload_audio", display: "Upload" },
+          { id: 2, name: "edit_audio", display: "Edit" }
+        ]
       },
-      comments: []
+      {
+        id: 2,
+        name: "2",
+        display: "Diagrams",
+        icon: "ios-code",
+        items: [
+          { id: 1, name: "new", display: "Create" },
+          { id: 2, name: "rename", display: "Rename" },
+          { id: 3, name: "delete", display: "Delete" }
+        ]
+      }
+    ],
+    diagrams: Diagrams.savedEditors,
+    openedDiagram: [],
+    open_modal: false,
+    diagram_id: 0,
+    columns: [
+      { type: "index", align: "center" },
+      { title: "Nombre", key: "name" },
+      { title: "Descripción", key: "description" },
+      { title: "Última actualización", key: "modified" }
+    ],
+    edit_audio_modal: false,
+    audio_id: 0,
+    audios: [],
+    columns_audio: [
+      { type: "index", align: "center" },
+      { title: "Nombre", key: "name" },
+      { title: "Descripción", key: "content" }
+    ],
+    audioContent: "",
+    save_modal: false,
+    formSave: { name: "", description: "", content: {} },
+    ruleSave: {
+      name: [
+        { required: true, message: "Please fill in the name.", trigger: "blur" }
+      ],
+      description: [
+        {
+          required: true,
+          message: "Please fill in the description.",
+          trigger: "blur"
+        }
+      ]
     },
-    newEditorJson: { id: "demo@0.1.0", nodes: {}, comments: [] }
+    delete_modal: false,
+    rename_modal: false,
+    rename_audio_modal: false,
+    upld_audio_modal: false,
+    formAudio: {},
+    file: ""
   }),
+  computed: {
+    diagram() {
+      return this.$store.state.diagram;
+    },
+    savable() {
+      return (
+        JSON.stringify(this.diagram) !==
+        JSON.stringify(this.openedDiagram.content)
+      );
+    },
+    runable() {
+      return !this.savable && this.openedDiagram.id != 0;
+    }
+  },
   methods: {
     action(name) {
       console.log(name);
+      switch (name) {
+        case "open":
+          this.fetchDiagrams().then(() => {
+            this.open_modal = true;
+          });
+          break;
+
+        case "save":
+          this.save_modal = true;
+          break;
+
+        case "delete":
+          this.fetchDiagrams().then(() => {
+            this.delete_modal = true;
+          });
+          break;
+
+        case "rename":
+          this.formSave.name = this.openedDiagram.name;
+          this.formSave.description = this.openedDiagram.description;
+          this.rename_modal = true;
+          break;
+
+        case "new":
+          this.openedDiagram = Diagrams.newEditor;
+          break;
+
+        case "upload_audio":
+          this.upld_audio_modal = true;
+          break;
+
+        case "edit_audio":
+          axios({
+            method: "get",
+            url: "http://192.168.1.7:5000/api/audios",
+            withCredentials: true,
+            crossDomain: true
+          })
+            .then(response => {
+              console.log(response);
+              this.audios = response.data;
+            })
+            .catch(error => {
+              console.log(error);
+            });
+          this.edit_audio_modal = true;
+          break;
+
+        case "run":
+          axios({
+            method: "get",
+            url:
+              "http://192.168.1.7:5000/api/programs/" +
+              this.openedDiagram.id +
+              "/run",
+            withCredentials: true,
+            crossDomain: true
+          })
+            .then(response => {
+              console.log(response);
+            })
+            .catch(error => {
+              console.log(error);
+            });
+          break;
+
+        case "stop":
+          axios({
+            method: "get",
+            url: "http://192.168.1.7:5000/api/programs/stop",
+            withCredentials: true,
+            crossDomain: true
+          })
+            .then(response => {
+              console.log(response);
+            })
+            .catch(error => {
+              console.log(error);
+            });
+          break;
+
+        default:
+          break;
+      }
+    },
+    fetchDiagrams() {
+      return axios({
+        method: "get",
+        url: "http://192.168.1.7:5000/api/programs",
+        withCredentials: true,
+        crossDomain: true
+      })
+        .then(response => {
+          console.log(response);
+          this.diagrams = response.data;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    handleSubmit(name) {
+      console.log("validating");
+
+      this.$refs[name].validate(valid => {
+        console.log(valid);
+
+        return valid;
+      });
+    },
+    open() {
+      axios({
+        method: "get",
+        url: "http://192.168.1.7:5000/api/programs" + "/" + this.diagram_id,
+        withCredentials: true,
+        crossDomain: true
+      })
+        .then(response => {
+          console.log(response);
+          this.openedDiagram = response.data;
+          this.open_modal = false;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    save() {
+      this.formSave.content = this.diagram;
+      axios({
+        method: "post",
+        url: "http://192.168.1.7:5000/api/programs",
+        withCredentials: true,
+        crossDomain: true,
+        headers: { "Content-Type": "application/json" },
+        data: this.formSave
+      })
+        .then(response => {
+          console.log(response);
+          this.diagrams.push(response.data);
+          this.diagram_id = response.data.id;
+          this.open();
+          this.open_modal = false;
+        })
+        .catch(error => {
+          console.log(error);
+          this.open_modal = false;
+        });
+    },
+    del() {
+      axios({
+        method: "delete",
+        url: "http://192.168.1.7:5000/api/programs" + "/" + this.diagram_id,
+        withCredentials: true,
+        crossDomain: true
+      })
+        .then(response => {
+          console.log(response);
+          //this.diagrams.push(response.data);
+          this.delete_modal = false;
+        })
+        .catch(error => {
+          console.log(error);
+          this.delete_modal = false;
+        });
+    },
+    update_content() {
+      axios({
+        method: "put",
+        url:
+          "http://192.168.1.7:5000/api/programs" + "/" + this.openedDiagram.id,
+        withCredentials: true,
+        crossDomain: true,
+        data: { content: this.diagram }
+      })
+        .then(response => {
+          console.log(response);
+          //this.diagrams.push(response.data);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    update_metadata() {
+      this.formSave.content = this.diagram;
+      axios({
+        method: "put",
+        url:
+          "http://192.168.1.7:5000/api/programs" + "/" + this.openedDiagram.id,
+        withCredentials: true,
+        crossDomain: true,
+        headers: { "Content-Type": "application/json" },
+        data: this.formSave
+      })
+        .then(response => {
+          console.log(response);
+          this.diagrams.push(response.data);
+          this.open_modal = false;
+        })
+        .catch(error => {
+          console.log(error);
+          this.open_modal = false;
+        });
+    },
+    resize() {
+      this.$refs["reteComp"].resize();
+    },
+    handleUpload(file) {
+      this.file = file;
+      return false;
+    },
+    upload_audio() {
+      console.log(this.file);
+      let form = new FormData();
+      form.append("content", this.formAudio.content);
+      form.append("tipo", "audio");
+      form.append("file", this.file);
+      axios({
+        method: "post",
+        url: "http://192.168.1.7:5000/api/audios",
+        withCredentials: true,
+        crossDomain: true,
+        mimeType: "multipart/form-data",
+        data: form
+      })
+        .then(response => {
+          console.log(response);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    delete_audio() {
+      axios({
+        method: "delete",
+        url: "http://192.168.1.7:5000/api/audios" + "/" + this.audio_id,
+        withCredentials: true,
+        crossDomain: true
+      })
+        .then(response => {
+          console.log(response);
+          this.edit_audio_modal = false;
+        })
+        .catch(error => {
+          console.log(error);
+          this.edit_audio_modal = false;
+        });
+    },
+    rename_audio() {
+      this.rename_audio_modal = true;
+    },
+    rename_content_audio() {
+      axios({
+        method: "put",
+        url: "http://192.168.1.7:5000/api/audios" + "/" + this.audio_id,
+        withCredentials: true,
+        crossDomain: true,
+        headers: { "Content-Type": "application/json" },
+        data: { content: this.audioContent }
+      })
+        .then(response => {
+          console.log(response);
+          this.edit_audio_modal = false;
+        })
+        .catch(error => {
+          console.log(error);
+        });
     }
+  },
+  created() {
+    this.openedDiagram = Diagrams.newEditor;
   }
 };
 </script>

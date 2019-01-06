@@ -16,6 +16,7 @@
   "license": "MIT",
   "dependencies": {
     "alight": "^0.14.1",
+    "axios": "^0.18.0",
     "iview": "^3.0.0",
     "lodash": "^4.17.11",
     "rete": "^1.0.0",
@@ -27,7 +28,8 @@
     "rete-minimap-plugin": "^0.1.0",
     "rete-vue-render-plugin": "^0.2.6",
     "vue": "^2.5.21",
-    "vue-router": "^2.8.1"
+    "vue-router": "^2.8.1",
+    "vuex": "^3.0.1"
   },
   "devDependencies": {
     "autoprefixer-loader": "^2.0.0",
