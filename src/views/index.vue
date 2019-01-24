@@ -162,7 +162,7 @@
             <Input type="text" v-model="formAudio.content" placeholder="Nombre"></Input>
           </FormItem>
           <FormItem label="Archivo">
-            <Upload :before-upload="handleUpload" action="http://192.168.1.7:5000/api/audios">
+            <Upload :before-upload="handleUpload" :action="this.backend + '/api/audios'">
               <Button icon="ios-cloud-upload-outline">Select the file to upload</Button>
             </Upload>
           </FormItem>
@@ -193,6 +193,7 @@
 import ReteComp from "./ReteComp";
 import * as Diagrams from "../libs/SavedDiagrams.js";
 import axios from "axios";
+import config from "../config/config.js";
 
 export default {
   name: "Index",
@@ -200,6 +201,7 @@ export default {
     ReteComp
   },
   data: () => ({
+    backend: config.backend,
     header_menus: [
       { id: 1, name: "new", display: "New", icon: "ios-create" },
       { id: 2, name: "open", display: "Open", icon: "ios-folder-open" },
@@ -322,7 +324,7 @@ export default {
         case "edit_audio":
           axios({
             method: "get",
-            url: "http://192.168.1.7:5000/api/audios",
+            url: this.backend + "/api/audios",
             withCredentials: true,
             crossDomain: true
           })
@@ -340,9 +342,7 @@ export default {
           axios({
             method: "get",
             url:
-              "http://192.168.1.7:5000/api/programs/" +
-              this.openedDiagram.id +
-              "/run",
+              this.backend + "/api/programs/" + this.openedDiagram.id + "/run",
             withCredentials: true,
             crossDomain: true
           })
@@ -357,7 +357,7 @@ export default {
         case "stop":
           axios({
             method: "get",
-            url: "http://192.168.1.7:5000/api/programs/stop",
+            url: this.backend + "/api/programs/stop",
             withCredentials: true,
             crossDomain: true
           })
@@ -376,7 +376,7 @@ export default {
     fetchDiagrams() {
       return axios({
         method: "get",
-        url: "http://192.168.1.7:5000/api/programs",
+        url: this.backend + "/api/programs",
         withCredentials: true,
         crossDomain: true
       })
@@ -400,7 +400,7 @@ export default {
     open() {
       axios({
         method: "get",
-        url: "http://192.168.1.7:5000/api/programs" + "/" + this.diagram_id,
+        url: this.backend + "/api/programs" + "/" + this.diagram_id,
         withCredentials: true,
         crossDomain: true
       })
@@ -417,7 +417,7 @@ export default {
       this.formSave.content = this.diagram;
       axios({
         method: "post",
-        url: "http://192.168.1.7:5000/api/programs",
+        url: this.backend + "/api/programs",
         withCredentials: true,
         crossDomain: true,
         headers: { "Content-Type": "application/json" },
@@ -438,7 +438,7 @@ export default {
     del() {
       axios({
         method: "delete",
-        url: "http://192.168.1.7:5000/api/programs" + "/" + this.diagram_id,
+        url: this.backend + "/api/programs" + "/" + this.diagram_id,
         withCredentials: true,
         crossDomain: true
       })
@@ -455,8 +455,7 @@ export default {
     update_content() {
       axios({
         method: "put",
-        url:
-          "http://192.168.1.7:5000/api/programs" + "/" + this.openedDiagram.id,
+        url: this.backend + "/api/programs" + "/" + this.openedDiagram.id,
         withCredentials: true,
         crossDomain: true,
         data: { content: this.diagram }
@@ -473,8 +472,7 @@ export default {
       this.formSave.content = this.diagram;
       axios({
         method: "put",
-        url:
-          "http://192.168.1.7:5000/api/programs" + "/" + this.openedDiagram.id,
+        url: this.backend + "/api/programs" + "/" + this.openedDiagram.id,
         withCredentials: true,
         crossDomain: true,
         headers: { "Content-Type": "application/json" },
@@ -505,7 +503,7 @@ export default {
       form.append("file", this.file);
       axios({
         method: "post",
-        url: "http://192.168.1.7:5000/api/audios",
+        url: this.backend + "/api/audios",
         withCredentials: true,
         crossDomain: true,
         mimeType: "multipart/form-data",
@@ -521,7 +519,7 @@ export default {
     delete_audio() {
       axios({
         method: "delete",
-        url: "http://192.168.1.7:5000/api/audios" + "/" + this.audio_id,
+        url: this.backend + "/api/audios" + "/" + this.audio_id,
         withCredentials: true,
         crossDomain: true
       })
@@ -540,7 +538,7 @@ export default {
     rename_content_audio() {
       axios({
         method: "put",
-        url: "http://192.168.1.7:5000/api/audios" + "/" + this.audio_id,
+        url: this.backend + "/api/audios" + "/" + this.audio_id,
         withCredentials: true,
         crossDomain: true,
         headers: { "Content-Type": "application/json" },

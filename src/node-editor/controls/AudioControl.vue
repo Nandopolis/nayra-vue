@@ -11,11 +11,13 @@
 
 <script>
 import axios from "axios";
+import config from "../../config/config.js";
 
 export default {
   props: ["readonly", "emitter", "ikey", "getData", "putData"],
   data() {
     return {
+      backend: config.backend,
       audioList: [],
       value: ""
     };
@@ -30,7 +32,7 @@ export default {
     this.value = this.getData(this.ikey);
     axios({
       method: "get",
-      url: "http://192.168.1.7:5000/api/audios",
+      url: backend + "/api/audios",
       withCredentials: true,
       crossDomain: true
     })
