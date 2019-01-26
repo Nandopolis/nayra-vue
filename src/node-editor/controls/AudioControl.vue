@@ -7,14 +7,27 @@
       :key="item.id"
     >{{ item.content }} ({{item.name}})</option>
   </select>
+  <!--Select v-model="value" size="small" style="width:200px">
+    <Option disabled selected value>Please select one</Option>
+    <Option v-for="item in audioList" :value="item.id" :key="item.id">{{ item.content }}</Option>
+  </Select-->
 </template>
 
 <script>
+import Vue from "vue";
 import axios from "axios";
 import config from "../../config/config.js";
+import { Select, Option } from "iview";
+
+Vue.component("Select", Select);
+Vue.component("Option", Option);
 
 export default {
   props: ["readonly", "emitter", "ikey", "getData", "putData"],
+  components: {
+    Select,
+    Option
+  },
   data() {
     return {
       backend: config.backend,
@@ -32,7 +45,7 @@ export default {
     this.value = this.getData(this.ikey);
     axios({
       method: "get",
-      url: backend + "/api/audios",
+      url: this.backend + "/api/audios",
       withCredentials: true,
       crossDomain: true
     })
