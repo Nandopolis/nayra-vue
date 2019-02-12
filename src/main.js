@@ -8,11 +8,21 @@ import "iview/dist/styles/iview.css";
 import Vuex from "vuex";
 import store from "./store";
 
-Vue.use(VueRouter);
-Vue.use(iView);
-Vue.use(Vuex);
+import vueCustomElement from "vue-custom-element";
 
-// 路由配置
+Vue.use(VueRouter);
+Vue.use(iView, { locale: "en-US" });
+Vue.use(Vuex);
+Vue.use(vueCustomElement);
+
+Vue.customElement("audio-select", () => 
+  import('./custom-elements/AudioSelect.vue')
+  .then(component => {
+    component.store = store;
+    return component;
+  })
+);
+
 const RouterConfig = {
   mode: "history",
   routes: Routers

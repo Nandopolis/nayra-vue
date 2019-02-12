@@ -12,7 +12,7 @@ export class AudioComponent extends Rete.Component {
     var out1 = new Rete.Output("end", "end", Socket.numSocket);
 
     return node
-      .addControl(new AudioControl(this.editor, "audio"))
+      .addControl(new AudioControl(this.editor, "audio", false))
       .addInput(inp1)
       .addOutput(out1);
   }

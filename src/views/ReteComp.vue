@@ -78,7 +78,7 @@ export default {
 
     this.editor.on(
       "process nodecreated noderemoved connectioncreated connectionremoved updateconnection",
-      event => {
+      () => {
         if (!this.editor.silent) {
           this.setDiagram(JSON.parse(JSON.stringify(this.editor.toJSON())));
         }
