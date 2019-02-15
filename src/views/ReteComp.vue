@@ -8,7 +8,7 @@ import ConnectionPlugin from "rete-connection-plugin";
 import VueRenderPlugin from "rete-vue-render-plugin";
 import ContextMenuPlugin from "rete-context-menu-plugin";
 import AreaPlugin from "rete-area-plugin";
-import CommentPlugin from "rete-comment-plugin";
+// import CommentPlugin from "rete-comment-plugin";
 import MinimapPlugin from "rete-minimap-plugin";
 import ConnectionReroutePlugin from "rete-connection-reroute-plugin";
 import { NumComponent } from "../node-editor/components/NumComponent.js";
@@ -17,6 +17,7 @@ import { AudioComponent } from "../node-editor/components/AudioComponent.js";
 import { PresenComponent } from "../node-editor/components/PresenComponent.js";
 import { RecogComponent } from "../node-editor/components/RecogComponent.js";
 import { EndComponent } from "../node-editor/components/EndComponent.js";
+import { TTSComponent } from "../node-editor/components/TTSComponent.js";
 
 export default {
   name: "ReteComp",
@@ -54,7 +55,8 @@ export default {
       new AddComponent(),
       new AudioComponent(),
       new PresenComponent(),
-      new EndComponent()
+      new EndComponent(),
+      new TTSComponent(),
     ];
     this.recogs.forEach(recog => {
       components.push(new RecogComponent(recog.name, recog.outputs));
@@ -65,7 +67,7 @@ export default {
     this.editor.use(VueRenderPlugin);
     this.editor.use(ContextMenuPlugin);
     this.editor.use(AreaPlugin);
-    this.editor.use(CommentPlugin);
+    // this.editor.use(CommentPlugin);
     this.editor.use(MinimapPlugin, { size: "small" });
     this.editor.use(ConnectionReroutePlugin);
 

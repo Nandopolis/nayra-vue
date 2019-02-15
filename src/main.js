@@ -9,6 +9,7 @@ import Vuex from "vuex";
 import store from "./store";
 
 import vueCustomElement from "vue-custom-element";
+import TextInput from "./custom-elements/TextInput.vue";
 
 Vue.use(VueRouter);
 Vue.use(iView, { locale: "en-US" });
@@ -22,6 +23,7 @@ Vue.customElement("audio-select", () =>
     return component;
   })
 );
+Vue.customElement("input-text", TextInput);
 
 const RouterConfig = {
   mode: "history",

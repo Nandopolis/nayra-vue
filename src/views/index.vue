@@ -1,4 +1,4 @@
-<style scoped>
+<style>
 .layout {
   border: 1px solid #d7dde4;
   background: #f5f7f9;
@@ -12,62 +12,88 @@
 }
 .layout-nav {
   width: fit-content;
-  float: right;
+  float: left;
+}
+.layout .ivu-menu-submenu-title {
+  height: 60px !important;
+}
+.demo-badge-alone {
+  background: #5cadb8 !important;
+}
+.layout-footer-center{
+  text-align: center;
 }
 </style>
 
 <template>
   <div class="layout">
     <Layout>
-      <Header>
+      <!-- Header Menu -->
+      <Header :style="{padding: '0 25px'}">
         <Menu mode="horizontal" theme="dark" @on-select="action">
-          <div class="layout-logo, ivu-menu-item">
-            <Icon type="ios-ionitron" size="30"></Icon>Nayra GPI
-          </div>
-          <div class="layout-nav">
-            <MenuItem v-for="menu in header_menus" :key="menu.id" :name="menu.name">
-              <Icon :type="menu.icon"></Icon>
-              {{menu.display}}
-            </MenuItem>
-          </div>
+          <Row type="flex">
+            <Col span="4" class-name="nav-col">
+              <div class="ivu-menu-item">
+                <Icon type="ios-ionitron" size="30"></Icon>Nayra GPI
+              </div>
+            </Col>
+            <Col span="20">
+              <Row type="flex" justify="end">
+                <Col v-if="menu.visible" v-for="menu in header_menus" :key="menu.id" :span="menu.items ? '5':'3'">
+                  <Submenu v-if="menu.items" :name="menu.name">
+                    <template slot="title">
+                      <Icon :type="menu.icon"></Icon>
+                      {{menu.display}}
+                    </template>
+                    <MenuItem v-for="item in menu.items" :key="item.id" :name="item.name">
+                      {{item.display}}
+                      <Icon v-if="item.icon" :type="item.icon" :style="{float: 'right'}"></Icon>
+                    </MenuItem>
+                  </Submenu>
+                  <MenuItem v-else :name="menu.name">
+                    <Icon :type="menu.icon"></Icon>
+                    {{menu.display}}
+                  </MenuItem>
+                </Col>
+              </Row>
+            </Col>
+          </Row>
         </Menu>
       </Header>
-      <Layout>
-        <Sider hide-trigger :style="{background: '#fff'}">
-          <Menu theme="light" width="auto" :open-names="['1', '2']" @on-select="action">
-            <Submenu v-for="menu in sider_menus" :key="menu.id" :name="menu.name">
-              <template slot="title">
-                <Icon :type="menu.icon"></Icon>
-                {{menu.display}}
-              </template>
-              <MenuItem v-for="item in menu.items" :key="item.id" :name="item.name">{{item.display}}</MenuItem>
-            </Submenu>
-          </Menu>
-        </Sider>
-        <Content :style="{padding: '24px', minHeight: '600px', maxHeight: '600px'}">
+
+      <!-- App Content -->
+      <Content :style="{padding: '24px'}">
+        <Row>
           <Breadcrumb :style="{margin: '0 0 24px', float: 'left'}">
             <BreadcrumbItem>Diagrams</BreadcrumbItem>
-            <BreadcrumbItem>{{openedDiagram.name}}</BreadcrumbItem>
+            <BreadcrumbItem>
+              {{openedDiagram.name}}
+              <Badge v-if="savable" status="processing"></Badge>
+            </BreadcrumbItem>
           </Breadcrumb>
-          <Button
-            :style="{margin: '0 10px 0', float: 'right'}"
-            shape="circle"
-            icon="md-done-all"
-            @click="update_content"
-          >Save</Button>
-          <Button
-            :style="{margin: '0 10px 0', float: 'right'}"
-            shape="circle"
-            icon="md-resize"
-            @click="resize"
-          >Resize</Button>
-          <ReteComp
-            :style="{background: '#fff', maxHeight: '500px', maxWidth: '1050px'}"
+          <ButtonGroup shape="circle" :style="{margin: '0 10px 0', float: 'right'}">
+            <Button @click="resize">
+              <Icon type="md-resize" /> Resize
+            </Button>
+            <Button @click="update_content">
+              Save <Icon type="md-done-all" />
+            </Button>
+          </ButtonGroup>
+        </Row>
+        
+        <Row :style="{height: '66vh', width: '100%'}">
+            <ReteComp
+            :style="{background: '#fff', height: 'auto'}"
             :editor-json="openedDiagram.content"
             ref="reteComp"
           />
-        </Content>
-      </Layout>
+        </Row>
+        
+      </Content>
+
+      <!-- Footer -->
+      <Footer class="layout-footer-center">{{diagram}}</Footer>
+      
       <Modal
         v-model="open_modal"
         title="Saved diagrams"
@@ -162,6 +188,9 @@
           <FormItem label="Nombre">
             <Input type="text" v-model="formAudio.content" placeholder="Nombre"></Input>
           </FormItem>
+          <FormItem label="Categoria">
+            <Input type="text" v-model="formAudio.category" placeholder="audio"></Input>
+          </FormItem>
           <FormItem label="Archivo">
             <Upload :before-upload="handleUpload" :action="this.backend + '/api/audios'">
               <Button icon="ios-cloud-upload-outline">Select the file to upload</Button>
@@ -186,7 +215,6 @@
           @on-current-change="val => diagram_id = val.id"
         ></Table>
       </Modal>
-      {{diagram}}
     </Layout>
   </div>
 </template>
@@ -204,35 +232,26 @@ export default {
   data: () => ({
     backend: config.backend,
     header_menus: [
-      { id: 1, name: "new", display: "New", icon: "ios-create" },
-      { id: 2, name: "open", display: "Open", icon: "ios-folder-open" },
-      { id: 3, name: "save", display: "Save as", icon: "ios-paper" },
-      { id: 4, name: "run", display: "Run", icon: "ios-play" },
-      { id: 5, name: "stop", display: "Stop", icon: "ios-pause" },
-      { id: 6, name: "help", display: "Help", icon: "md-help" }
-    ],
-    sider_menus: [
       {
-        id: 1,
-        name: "1",
-        display: "Audios",
-        icon: "ios-pulse",
+        id: 1, name: "1", visible: true, display: "Diagrams", icon: "ios-code",
         items: [
-          { id: 1, name: "upload_audio", display: "Upload" },
-          { id: 2, name: "edit_audio", display: "Edit" }
+          { id: 1, name: "new", display: "Create", icon: "ios-create-outline" },
+          { id: 2, name: "open", display: "Open", icon: "ios-folder-open-outline" },
+          { id: 3, name: "save", display: "Save as", icon: "ios-document-outline" },
+          { id: 4, name: "rename", display: "Rename", icon: "ios-clipboard-outline" },
+          { id: 5, name: "delete", display: "Delete", icon: "md-close" }
         ]
       },
       {
-        id: 2,
-        name: "2",
-        display: "Diagrams",
-        icon: "ios-code",
+        id: 2, name: "2", visible: true, display: "Audios", icon: "ios-pulse",
         items: [
-          { id: 1, name: "new", display: "Create" },
-          { id: 2, name: "rename", display: "Rename" },
-          { id: 3, name: "delete", display: "Delete" }
+          { id: 1, name: "upload_audio", display: "Upload", icon: "ios-cloud-upload-outline" },
+          { id: 2, name: "edit_audio", display: "Edit", icon: "ios-clipboard-outline" }
         ]
-      }
+      },
+      { id: 3, name: "run", display: "Run", icon: "ios-play", visible: true },
+      { id: 4, name: "stop", display: "Stop", icon: "ios-pause", visible: false },
+      { id: 5, name: "help", display: "Help", icon: "md-help", visible: true }
     ],
     diagrams: Diagrams.savedEditors,
     openedDiagram: [],
@@ -280,13 +299,16 @@ export default {
     },
     savable() {
       return (
-        JSON.stringify(this.diagram) !==
+        this.diagram !==
         JSON.stringify(this.openedDiagram.content)
       );
     },
     runable() {
       return !this.savable && this.openedDiagram.id != 0;
     }
+  },
+  mounted() {
+    this.$store.dispatch('loadAudios');
   },
   methods: {
     action(name) {
@@ -415,7 +437,7 @@ export default {
         });
     },
     save() {
-      this.formSave.content = this.diagram;
+      this.formSave.content = JSON.parse(this.diagram);
       axios({
         method: "post",
         url: this.backend + "/api/programs",
@@ -459,7 +481,7 @@ export default {
         url: this.backend + "/api/programs" + "/" + this.openedDiagram.id,
         withCredentials: true,
         crossDomain: true,
-        data: { content: this.diagram }
+        data: { content: JSON.parse(this.diagram) }
       })
         .then(response => {
           console.log(response);
@@ -490,6 +512,8 @@ export default {
         });
     },
     resize() {
+      this.header_menus[2].visible = !this.header_menus[2].visible;
+      this.header_menus[3].visible = !this.header_menus[3].visible;
       this.$refs["reteComp"].resize();
     },
     handleUpload(file) {
@@ -500,7 +524,7 @@ export default {
       console.log(this.file);
       let form = new FormData();
       form.append("content", this.formAudio.content);
-      form.append("tipo", "audio");
+      form.append("category", this.formAudio.category);
       form.append("file", this.file);
       axios({
         method: "post",

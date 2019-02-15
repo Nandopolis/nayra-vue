@@ -1,13 +1,6 @@
 <template>
-  <!-- <Select v-model="value" size="large" placeholder="select an audio" :transfer="true">
-    <Option v-for="item in audios" :key="item.id" :value="item.id" :label="item.name">
-      <Tooltip :content="item.content" placement="right">
-        <div>{{ item.name }}</div>
-      </Tooltip>
-    </Option>
-  </Select> -->
   <Cascader
-    :data="audios2"
+    :data="formated_audios"
     size="large"
     trigger="hover"
     placeholder="select an audio"
@@ -21,7 +14,6 @@
 export default {
   data() {
     return {
-      value: "",
       audios2: [
         {
           value: "saludos", label: "Saludos",
@@ -49,14 +41,12 @@ export default {
       ]
     };
   },
-  // watch: {
-  //   value() {
-  //     this.$emit('select', this.value)
-  //   }
-  // },
   computed: {
     audios() {
       return this.$store.state.audios;
+    },
+    formated_audios() {
+      return this.$store.getters.formated_audios;
     }
   },
   mounted() {
@@ -66,7 +56,8 @@ export default {
   },
   methods: {
     onChange(value, selectedData) {
-      this.$emit('select', value[value.length - 1])
+      this.$emit('select', 1)
+      // this.$emit('select', value[value.length - 1])
     }
   }
 };

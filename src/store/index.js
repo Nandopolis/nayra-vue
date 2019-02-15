@@ -8,14 +8,30 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     diagram: {},
-    audios: [
-      { id: 1, name: "audio1", content: "audio 1" },
-      { id: 2, name: "audio2", content: "audio 2" },
-      { id: 3, name: "audio3", content: "audio 3" },
-      { id: 4, name: "audio4", content: "audio 4" },
-      { id: 5, name: "audio5", content: "audio 5" },
-      { id: 6, name: "audio6", content: "audio 6" }
-    ]
+    audios: []
+  },
+  getters: {
+    formated_audios: state => {
+      var audios = [];
+      state.audios.reduce((last_audio, audio) => {
+        if ('audio' === audio.category) {
+          audios.push({ value: audio.id, label: audio.name, content: audio.content });
+        } else {
+          var group_value = audios.findIndex(item => {
+            return (item.label === audio.category && item.children);
+          })
+          if (-1 !== group_value) {
+            audios[group_value].children.push({ value: audio.id, label: audio.name, content: audio.content });
+          } else {
+            audios.push({
+              value: audio.category, label: audio.category,
+              children: [{ value: audio.id, label: audio.name, content: audio.content }]
+            });
+          }
+        }
+      });
+      return audios;
+    }
   },
   actions: {
     loadAudios({commit}) {
