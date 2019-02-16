@@ -9,7 +9,8 @@ export default new Vuex.Store({
   state: {
     diagram: {},
     audios: [],
-    actions: []
+    actions: [],
+    words: []
   },
   getters: {
     formated_audios: state => {
@@ -93,6 +94,20 @@ export default new Vuex.Store({
         .catch(error => {
           console.log(error);
         });
+    },
+    loadWords({commit}) {
+      axios({
+        method: "get",
+        url: config.backend + "/api/words",
+        withCredentials: true,
+        crossDomain: true
+      })
+        .then(words => {
+          commit('setWords', words.data);
+        })
+        .catch(error => {
+          console.log(error);
+        });
     }
   },
   mutations: {
@@ -104,6 +119,9 @@ export default new Vuex.Store({
     },
     setActions(state, actions) {
       state.actions = actions;
+    },
+    setWords(state, words) {
+      state.words = words;
     }
   }
 });

@@ -32,9 +32,15 @@ Vue.customElement("action-select", () =>
     return component;
   })
 );
+Vue.customElement("word-select", () => 
+  import('./custom-elements/WordSelect.vue')
+  .then(component => {
+    component.store = store;
+    return component;
+  })
+);
 Vue.customElement("input-text", TextInput);
 Vue.customElement("tts-radio", TtsRadio);
-Vue.customElement("word-select", WordSelect);
 
 const RouterConfig = {
   mode: "history",

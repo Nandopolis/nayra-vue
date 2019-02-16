@@ -4,11 +4,8 @@
     :transfer="true"
     multiple
     filterable
-    remote
-    placeholder="construct your sentence"
-    :remote-method="remoteWords"
-    :loading="loading">
-    <Option v-for="(option, index) in options" :value="option" :key="index">{{option}}</Option>
+    placeholder="construct your sentence">
+    <Option v-for="(option, index) in options_full" :value="option" :key="index">{{option}}</Option>
   </Select>
 </template>
 
@@ -30,9 +27,14 @@ export default {
       this.$emit('options', this.value)
     }
   },
+  computed: {
+    options_full() {
+      return this.$store.state.words;
+    }
+  },
   created() {
     if (undefined !== this.initial) {
-      this.value = this.initial.split(',');
+      this.value = this.initial.split(' ');
     }
   },
   methods: {

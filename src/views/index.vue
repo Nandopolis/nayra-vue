@@ -246,8 +246,8 @@ export default {
           { id: 2, name: "edit_audio", display: "Edit", icon: "ios-clipboard-outline" }
         ]
       },
-      { id: 3, name: "run", display: "Run", icon: "ios-play", visible: this.runable },
-      { id: 4, name: "stop", display: "Stop", icon: "ios-pause", visible: !this.runable },
+      { id: 3, name: "run", display: "Run", icon: "ios-play", visible: true },
+      { id: 4, name: "stop", display: "Stop", icon: "ios-pause", visible: false },
       { id: 5, name: "help", display: "Help", icon: "md-help", visible: true }
     ],
     runable: true,
@@ -308,6 +308,7 @@ export default {
   mounted() {
     this.$store.dispatch('loadAudios');
     this.$store.dispatch('loadActions');
+    this.$store.dispatch('loadWords');
   },
   methods: {
     action(name) {
@@ -361,6 +362,8 @@ export default {
           break;
 
         case "run":
+          this.header_menus[2].visible = false;
+          this.header_menus[3].visible = true;
           axios({
             method: "get",
             url:
@@ -370,14 +373,19 @@ export default {
           })
             .then(response => {
               console.log(response);
-              this.runable = false;
+              this.header_menus[2].visible = true;
+              this.header_menus[3].visible = false;
             })
             .catch(error => {
               console.log(error);
+              this.header_menus[2].visible = true;
+              this.header_menus[3].visible = false;
             });
           break;
 
         case "stop":
+          this.header_menus[2].visible = true;
+          this.header_menus[3].visible = false;
           axios({
             method: "get",
             url: this.backend + "/api/programs/stop",
@@ -386,10 +394,13 @@ export default {
           })
             .then(response => {
               console.log(response);
-              this.runable = true;
+              this.header_menus[2].visible = false;
+              this.header_menus[3].visible = true;
             })
             .catch(error => {
               console.log(error);
+              this.header_menus[2].visible = false;
+              this.header_menus[3].visible = true;
             });
           break;
 
