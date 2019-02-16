@@ -1,6 +1,8 @@
 <template>
-  <Cascader
+  <Cascader 
     :data="formated_audios"
+    v-model="value"
+    ref="cascader"
     size="large"
     trigger="hover"
     placeholder="select an audio"
@@ -12,33 +14,10 @@
 
 <script>
 export default {
+  props: ['initial'],
   data() {
     return {
-      audios2: [
-        {
-          value: "saludos", label: "Saludos",
-          children: [
-            {value: 1, label: "Mañana"},
-            {value: 2, label: "Tarde"},
-            {value: 3, label: "Noche"}
-          ]
-        },
-        {
-          value: "edad", label: "Edad",
-          children: [
-            {value: 4, label: "Mayor"},
-            {value: 5, label: "Menor"}
-          ]
-        },
-        {
-          value: "color", label: "Color",
-          children: [
-            {value: 6, label: "Rojo"},
-            {value: 7, label: "Verde"},
-            {value: 8, label: "Azul"}
-          ]
-        }
-      ]
+      value: []
     };
   },
   computed: {
@@ -49,15 +28,33 @@ export default {
       return this.$store.getters.formated_audios;
     }
   },
-  mounted() {
+  created() {
+    if (undefined !== this.initial) {
+      console.log(this.initial);
+      
+      var initial_audio = this.$store.getters.audio(this.initial)
+      console.log(initial_audio);
+      
+      if ('audio' === initial_audio.category) {
+        this.value[0] = initial_audio.id;
+      } else {
+        this.value[0] = initial_audio.category;
+        this.value[1] = initial_audio.id;
+      }
+      console.log(this.value);
+      
+    }
     if (!this.audios) {
       this.$store.dispatch('loadAudios');
     }
   },
   methods: {
     onChange(value, selectedData) {
-      this.$emit('select', 1)
-      // this.$emit('select', value[value.length - 1])
+      console.log(this.value);
+      console.log(value);
+      console.log(selectedData);
+      
+      this.$emit('select', value[value.length - 1])
     }
   }
 };

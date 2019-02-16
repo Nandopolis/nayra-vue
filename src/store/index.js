@@ -13,7 +13,7 @@ export default new Vuex.Store({
   getters: {
     formated_audios: state => {
       var audios = [];
-      state.audios.reduce((last_audio, audio) => {
+      state.audios.map((audio) => {
         if ('audio' === audio.category) {
           audios.push({ value: audio.id, label: audio.name, content: audio.content });
         } else {
@@ -31,6 +31,11 @@ export default new Vuex.Store({
         }
       });
       return audios;
+    },
+    audio: state => id => {
+      return state.audios.find(item => {
+        return item.id === id;
+      })
     }
   },
   actions: {
@@ -43,7 +48,7 @@ export default new Vuex.Store({
       })
         .then(audios => {
           console.log(audios);
-          commit('setAudios', audios);
+          commit('setAudios', audios.data);
         })
         .catch(error => {
           console.log(error);

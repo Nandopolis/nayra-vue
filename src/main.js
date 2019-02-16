@@ -10,6 +10,7 @@ import store from "./store";
 
 import vueCustomElement from "vue-custom-element";
 import TextInput from "./custom-elements/TextInput.vue";
+import TtsRadio from "./custom-elements/TtsRadio.vue";
 
 Vue.use(VueRouter);
 Vue.use(iView, { locale: "en-US" });
@@ -24,6 +25,7 @@ Vue.customElement("audio-select", () =>
   })
 );
 Vue.customElement("input-text", TextInput);
+Vue.customElement("tts-radio", TtsRadio);
 
 const RouterConfig = {
   mode: "history",

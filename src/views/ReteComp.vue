@@ -82,7 +82,7 @@ export default {
       "process nodecreated noderemoved connectioncreated connectionremoved updateconnection",
       () => {
         if (!this.editor.silent) {
-          this.setDiagram(JSON.parse(JSON.stringify(this.editor.toJSON())));
+          this.setDiagram(JSON.stringify(this.editor.toJSON()));
         }
       }
     );

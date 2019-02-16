@@ -4,7 +4,7 @@ import { TextControl } from "../controls/TextControl";
 
 export class TTSComponent extends Rete.Component {
   constructor() {
-    super("Text to Speech");
+    super("Speak");
   }
 
   builder(node) {

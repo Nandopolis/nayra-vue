@@ -1,9 +1,13 @@
 <template>
-  <Input v-model="value" placeholder="Enter something..." style="width: 125px" clearable/>
+  <Input
+    v-model="value" placeholder="Enter something..."
+    size="large" style="width: 203px" clearable
+  />
 </template>
 
 <script>
 export default {
+  props: ['initial'],
   data() {
     return {
       value: ''
@@ -11,11 +15,13 @@ export default {
   },
   watch: {
     value() {
-      this.$emit('input', this.value);
+      var normal_string = this.value.replace(/[^a-zA-Z ]/g, "");
+      this.$emit('input', normal_string);
+      this.value = normal_string
     }
   },
-  mounted() {
-    
+  created() {
+    this.value = this.initial;
   },
   methods: {
     

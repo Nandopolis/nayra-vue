@@ -82,7 +82,7 @@
         </Row>
         
         <Row :style="{height: '66vh', width: '100%'}">
-            <ReteComp
+          <ReteComp
             :style="{background: '#fff', height: 'auto'}"
             :editor-json="openedDiagram.content"
             ref="reteComp"
