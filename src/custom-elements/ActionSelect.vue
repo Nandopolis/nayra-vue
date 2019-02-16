@@ -1,11 +1,10 @@
 <template>
   <Cascader 
-    :data="formated_audios"
+    :data="formated_actions"
     v-model="value"
-    ref="cascader"
     size="large"
     trigger="hover"
-    placeholder="select an audio"
+    placeholder="select an action"
     :clearable="false"
     :transfer="true"
     @on-change="onChange">
@@ -21,24 +20,24 @@ export default {
     };
   },
   computed: {
-    audios() {
-      return this.$store.state.audios;
+    actions() {
+      return this.$store.state.actions;
     },
-    formated_audios() {
-      return this.$store.getters.formated_audios;
+    formated_actions() {
+      return this.$store.getters.formated_actions;
     }
   },
   created() {
     if (undefined !== this.initial) {
-      var initial_audio = this.$store.getters.audio(this.initial)
-      if ('audio' === initial_audio.category) {
-        this.value[0] = initial_audio.id;
+      var initial_action = this.$store.getters.action(this.initial)
+      if ('action' === initial_action.category) {
+        this.value[0] = initial_action.id;
       } else {
-        this.value[0] = initial_audio.category;
-        this.value[1] = initial_audio.id;
+        this.value[0] = initial_action.category;
+        this.value[1] = initial_action.id;
       }
     }
-    if (!this.audios) {
+    if (!this.actions) {
       this.$store.dispatch('loadAudios');
     }
   },

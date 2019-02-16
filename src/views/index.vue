@@ -94,22 +94,19 @@
       <!-- Footer -->
       <Footer class="layout-footer-center">{{diagram}}</Footer>
       
-      <Modal
+      <Drawer
         v-model="open_modal"
-        title="Saved diagrams"
+        title="Saved programs"
         width="80%"
-        ok-text="Open"
-        cancel-text="Cancel"
-        @on-ok="open"
-        @on-cancel="open_modal=false"
+        :closable="false"
       >
         <Table
           highlight-row
           :columns="columns"
           :data="diagrams"
-          @on-current-change="val => diagram_id = val.id"
+          @on-current-change="open"
         ></Table>
-      </Modal>
+      </Drawer>
 
       <Modal
         v-model="save_modal"
@@ -212,7 +209,7 @@
           highlight-row
           :columns="columns"
           :data="diagrams"
-          @on-current-change="val => diagram_id = val.id"
+          @on-current-change="open"
         ></Table>
       </Modal>
     </Layout>
@@ -249,11 +246,12 @@ export default {
           { id: 2, name: "edit_audio", display: "Edit", icon: "ios-clipboard-outline" }
         ]
       },
-      { id: 3, name: "run", display: "Run", icon: "ios-play", visible: true },
-      { id: 4, name: "stop", display: "Stop", icon: "ios-pause", visible: false },
+      { id: 3, name: "run", display: "Run", icon: "ios-play", visible: this.runable },
+      { id: 4, name: "stop", display: "Stop", icon: "ios-pause", visible: !this.runable },
       { id: 5, name: "help", display: "Help", icon: "md-help", visible: true }
     ],
-    diagrams: Diagrams.savedEditors,
+    runable: true,
+    diagrams: [],
     openedDiagram: [],
     open_modal: false,
     diagram_id: 0,
@@ -303,12 +301,13 @@ export default {
         JSON.stringify(this.openedDiagram.content)
       );
     },
-    runable() {
-      return !this.savable && this.openedDiagram.id != 0;
-    }
+    // runable() {
+    //   return !this.savable && this.openedDiagram.id != 0;
+    // }
   },
   mounted() {
     this.$store.dispatch('loadAudios');
+    this.$store.dispatch('loadActions');
   },
   methods: {
     action(name) {
@@ -371,6 +370,7 @@ export default {
           })
             .then(response => {
               console.log(response);
+              this.runable = false;
             })
             .catch(error => {
               console.log(error);
@@ -386,6 +386,7 @@ export default {
           })
             .then(response => {
               console.log(response);
+              this.runable = true;
             })
             .catch(error => {
               console.log(error);
@@ -420,7 +421,8 @@ export default {
         return valid;
       });
     },
-    open() {
+    open(val) {
+      this.diagram_id = val.id;
       axios({
         method: "get",
         url: this.backend + "/api/programs" + "/" + this.diagram_id,
@@ -449,8 +451,7 @@ export default {
         .then(response => {
           console.log(response);
           this.diagrams.push(response.data);
-          this.diagram_id = response.data.id;
-          this.open();
+          this.open(response.data);
           this.open_modal = false;
         })
         .catch(error => {

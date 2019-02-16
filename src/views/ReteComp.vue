@@ -18,6 +18,7 @@ import { PresenComponent } from "../node-editor/components/PresenComponent.js";
 import { RecogComponent } from "../node-editor/components/RecogComponent.js";
 import { EndComponent } from "../node-editor/components/EndComponent.js";
 import { TTSComponent } from "../node-editor/components/TTSComponent.js";
+import { WordComponent } from "../node-editor/components/WordComponent.js";
 
 export default {
   name: "ReteComp",
@@ -25,9 +26,9 @@ export default {
   data: () => ({
     editor: null,
     recogs: [
-      { name: "Saludos", outputs: ["dia", "tarde", "noche"] },
-      { name: "Generos", outputs: ["hombre", "mujer"] },
-      { name: "Ciudad", outputs: ["La Paz", "Cochabamba", "Santa Cruz"] }
+      { name: "1", outputs: ["opt1"] },
+      { name: "2", outputs: ["opt1", "opt2"] },
+      { name: "3", outputs: ["opt1", "opt2", "opt3"] }
     ]
   }),
   watch: {
@@ -57,9 +58,10 @@ export default {
       new PresenComponent(),
       new EndComponent(),
       new TTSComponent(),
+      new RecogComponent("Generos", ["hombre", "mujer"])
     ];
     this.recogs.forEach(recog => {
-      components.push(new RecogComponent(recog.name, recog.outputs));
+      components.push(new WordComponent(recog.name, recog.outputs));
     });
 
     this.editor = new Rete.NodeEditor("demo@0.1.0", this.$refs.rete);

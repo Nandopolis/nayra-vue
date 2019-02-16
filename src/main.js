@@ -11,6 +11,7 @@ import store from "./store";
 import vueCustomElement from "vue-custom-element";
 import TextInput from "./custom-elements/TextInput.vue";
 import TtsRadio from "./custom-elements/TtsRadio.vue";
+import WordSelect from "./custom-elements/WordSelect.vue";
 
 Vue.use(VueRouter);
 Vue.use(iView, { locale: "en-US" });
@@ -24,8 +25,16 @@ Vue.customElement("audio-select", () =>
     return component;
   })
 );
+Vue.customElement("action-select", () => 
+  import('./custom-elements/ActionSelect.vue')
+  .then(component => {
+    component.store = store;
+    return component;
+  })
+);
 Vue.customElement("input-text", TextInput);
 Vue.customElement("tts-radio", TtsRadio);
+Vue.customElement("word-select", WordSelect);
 
 const RouterConfig = {
   mode: "history",

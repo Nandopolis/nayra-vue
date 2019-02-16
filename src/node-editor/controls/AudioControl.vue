@@ -3,9 +3,14 @@
     <div class="grid-item">
       <tts-radio :initial="this.getData('key')" @check-change="onCheckChange"></tts-radio>
     </div>
+    <br>
     <div class="grid-item">
       <input-text v-if="this.key === 'text'" :initial="this.getData('text')" @input="onSelect"></input-text>
       <audio-select v-else :initial="this.getData('audio')" @select="onSelect"></audio-select>
+    </div>
+    <br>
+    <div class="grid-item">
+      <action-select :initial="this.getData('action')" @select="onActionSelect"></action-select>
     </div>
   </div>
 </template>
@@ -33,6 +38,10 @@ export default {
     onCheckChange(event) {
       this.key = event.detail[0];
       this.putData('key', this.key);
+      this.emitter.trigger("process");
+    },
+    onActionSelect(event) {
+      this.putData('action', event.detail[0]);
       this.emitter.trigger("process");
     }
   }
