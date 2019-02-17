@@ -1,11 +1,13 @@
 <template>
   <Select
-    v-model="value"
-    :transfer="true"
-    multiple
-    filterable
+    v-model="value" ref="select"
+    :transfer="true" multiple
+    remote :remote-method="remoteWords"
+    filterable :loading="loading"
+    loading-text="searching..."
+    not-found-text="there is nothing to show..."
     placeholder="construct your sentence">
-    <Option v-for="(option, index) in options_full" :value="option" :key="index">{{option}}</Option>
+    <Option v-for="(option, index) in options" :value="option" :key="index">{{option}}</Option>
   </Select>
 </template>
 
@@ -34,7 +36,10 @@ export default {
   },
   created() {
     if (undefined !== this.initial) {
-      this.value = this.initial.split(' ');
+      var value = this.initial.split(' ');
+      console.log(value);
+      this.$refs['select'].setQuery(value[0]);
+      this.value.push[value[0]];
     }
   },
   methods: {
