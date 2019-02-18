@@ -34,12 +34,11 @@ export default {
       return this.$store.state.words;
     }
   },
-  created() {
+  mounted() {
     if (undefined !== this.initial) {
       var value = this.initial.split(' ');
-      console.log(value);
-      this.$refs['select'].setQuery(value[0]);
-      this.value.push[value[0]];
+      this.options = value;
+      this.value = value;
     }
   },
   methods: {

@@ -27,5 +27,6 @@ export default {
 <style>
 .checkbox-text {
   color: white;
+  font-size: 1.2em;
 }
 </style>

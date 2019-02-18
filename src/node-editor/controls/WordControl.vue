@@ -1,5 +1,12 @@
 <template>
-  <word-select :initial="this.getData(this.ikey)" @options="onOptions"></word-select>
+  <div class="grid-container">
+    <div class="item">
+      <span class="checkbox-text">{{this.ikey}}:</span>
+    </div>
+    <div class="item">
+      <word-select :initial="this.getData(this.ikey)" @options="onOptions"></word-select>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -20,5 +27,14 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.checkbox-text {
+  color: white;
+  font-size: medium;
+}
+.grid-container {
+  display: grid;
+  grid-template-columns: auto 200px;
+  grid-gap: 5px;
+}
 </style>
