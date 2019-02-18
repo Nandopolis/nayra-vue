@@ -6,14 +6,6 @@
   border-radius: 4px;
   overflow: hidden;
 }
-.layout-logo {
-  width: fit-content;
-  float: left;
-}
-.layout-nav {
-  width: fit-content;
-  float: left;
-}
 .layout .ivu-menu-submenu-title {
   height: 60px !important;
 }
@@ -22,6 +14,16 @@
 }
 .layout-footer-center{
   text-align: center;
+}
+.demo-drawer-footer{
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  border-top: 1px solid #e8e8e8;
+  padding: 10px 16px;
+  text-align: right;
+  background: #fff;
 }
 </style>
 
@@ -94,11 +96,12 @@
       <!-- Footer -->
       <Footer class="layout-footer-center">{{diagram}}</Footer>
       
+      <!-- Open Drawer -->
       <Drawer
         v-model="open_modal"
         title="Saved programs"
         width="80%"
-        :closable="false"
+        :mask-closable="false"
       >
         <Table
           highlight-row
@@ -111,7 +114,7 @@
       <Modal
         v-model="save_modal"
         title="Save diagram"
-        width="80%"
+        width="70%"
         ok-text="Save"
         cancel-text="Cancel"
         @on-ok="save"
@@ -172,29 +175,31 @@
         <Input type="text" v-model="audioContent" placeholder="Descripción"></Input>
       </Modal>
 
-      <Modal
+      <Drawer
         v-model="upld_audio_modal"
         title="Upload audio"
-        width="80%"
-        ok-text="Upload"
-        cancel-text="Cancel"
-        @on-ok="upload_audio"
-        @on-cancel="upld_audio_modal=false"
-      >
+        width="50%"
+        :mask-closable="false"
+        :styles="{height: 'calc(100% - 55px)', overflow: 'auto', paddingBottom: '53px', position: 'static'}">
         <Form :model="formAudio">
-          <FormItem label="Nombre">
-            <Input type="text" v-model="formAudio.content" placeholder="Nombre"></Input>
+          <FormItem label="Description">
+            <Input type="text" v-model="formAudio.content" placeholder="description"></Input>
           </FormItem>
-          <FormItem label="Categoria">
-            <Input type="text" v-model="formAudio.category" placeholder="audio"></Input>
+          <FormItem label="Category">
+            <Input type="text" v-model="formAudio.category" placeholder="category"></Input>
           </FormItem>
-          <FormItem label="Archivo">
+          <FormItem label="File">
+            <br>
             <Upload :before-upload="handleUpload" :action="this.backend + '/api/audios'">
-              <Button icon="ios-cloud-upload-outline">Select the file to upload</Button>
+              <Button icon="ios-cloud-upload-outline">{{this.file.name || "Select the file to upload"}}</Button>
             </Upload>
           </FormItem>
         </Form>
-      </Modal>
+        <div class="item demo-drawer-footer">
+          <Button style="margin-right: 8px" @click="upld_audio_modal = false">Cancel</Button>
+          <Button type="primary" @click="upload_audio">Submit</Button>
+        </div>
+      </Drawer>
 
       <Modal
         v-model="delete_modal"
@@ -342,6 +347,8 @@ export default {
 
         case "upload_audio":
           this.upld_audio_modal = true;
+          this.file = "";
+          this.formAudio = {};
           break;
 
         case "edit_audio":
@@ -548,6 +555,7 @@ export default {
       })
         .then(response => {
           console.log(response);
+          upld_audio_modal = false
         })
         .catch(error => {
           console.log(error);
