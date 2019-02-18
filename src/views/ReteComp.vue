@@ -36,7 +36,7 @@ export default {
       if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
         console.log("editor-json changed");
         await this.editor.fromJSON(this.editorJson);
-        this.setDiagram(JSON.parse(JSON.stringify(this.editorJson)));
+        this.setDiagram(JSON.stringify(this.editorJson));
         this.resize();
       }
     }
@@ -78,7 +78,7 @@ export default {
     });
 
     this.editor.fromJSON(this.editorJson);
-    this.setDiagram(this.editorJson);
+    this.setDiagram(JSON.stringify(this.editor.toJSON()));
 
     this.editor.on(
       "process nodecreated noderemoved connectioncreated connectionremoved updateconnection",

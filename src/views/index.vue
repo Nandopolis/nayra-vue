@@ -175,6 +175,7 @@
         <Input type="text" v-model="audioContent" placeholder="Descripción"></Input>
       </Modal>
 
+      <!-- Upload audio Drawer -->
       <Drawer
         v-model="upld_audio_modal"
         title="Upload audio"
@@ -255,7 +256,6 @@ export default {
       { id: 4, name: "stop", display: "Stop", icon: "ios-pause", visible: false },
       { id: 5, name: "help", display: "Help", icon: "md-help", visible: true }
     ],
-    runable: true,
     diagrams: [],
     openedDiagram: [],
     open_modal: false,
@@ -301,14 +301,14 @@ export default {
       return this.$store.state.diagram;
     },
     savable() {
+      console.log(this.diagram);
+      console.log(JSON.stringify(this.openedDiagram.content));
+      
       return (
         this.diagram !==
         JSON.stringify(this.openedDiagram.content)
       );
-    },
-    // runable() {
-    //   return !this.savable && this.openedDiagram.id != 0;
-    // }
+    }
   },
   mounted() {
     this.$store.dispatch('loadAudios');
