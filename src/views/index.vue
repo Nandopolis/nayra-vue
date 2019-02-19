@@ -83,9 +83,9 @@
           </ButtonGroup>
         </Row>
         
-        <Row :style="{height: '66vh', width: '100%'}">
+        <Row :style="{height: 'calc(100vh - 159px)', width: '100%'}">
           <ReteComp
-            :style="{background: '#fff', height: 'auto'}"
+            :style="{background: '#fff', height: 'calc(100vh - 159px'}"
             :editor-json="openedDiagram.content"
             ref="reteComp"
           />
@@ -94,7 +94,7 @@
       </Content>
 
       <!-- Footer -->
-      <Footer class="layout-footer-center">{{diagram}}</Footer>
+      <!-- <Footer class="layout-footer-center">{{diagram}}</Footer> -->
       
       <!-- Open Drawer -->
       <Drawer
@@ -540,7 +540,6 @@ export default {
         data: form
       })
         .then(response => {
-          console.log(response);
           this.upld_audio_modal = false;
           var data  = response.data;
           data['category'] = this.formAudio.category;
@@ -558,7 +557,6 @@ export default {
         crossDomain: true
       })
         .then(response => {
-          console.log(response);
           this.$store.commit('delAudio', this.audio_id);
           this.edit_audio_modal = false;
         })
