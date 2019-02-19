@@ -96,24 +96,13 @@
       <!-- Footer -->
       <!-- <Footer class="layout-footer-center">{{diagram}}</Footer> -->
       
-      <!-- Open Drawer -->
-      <Drawer
-        v-model="open_modal"
-        title="Saved programs"
-        width="80%"
-        :mask-closable="false">
+      <!-- Open diagram Drawer -->
+      <Drawer v-model="open_modal" title="Saved programs" width="70%">
         <Table highlight-row :columns="columns" :data="diagrams" @on-current-change="open"></Table>
       </Drawer>
 
-      <Modal
-        v-model="save_modal"
-        title="Save diagram"
-        width="70%"
-        ok-text="Save"
-        cancel-text="Cancel"
-        @on-ok="save"
-        @on-cancel="save_modal=false"
-      >
+      <!-- Save as diagram Modal -->
+      <Modal v-model="save_modal" title="Save diagram" width="40%">
         <Form :model="formSave" :rules="ruleSave">
           <FormItem label="Name">
             <Input type="text" v-model="formSave.name" placeholder="name"></Input>
@@ -122,40 +111,45 @@
             <Input type="text" v-model="formSave.description" placeholder="Description"></Input>
           </FormItem>
         </Form>
-      </Modal>
-
-      <Modal
-        v-model="rename_modal"
-        title="Edit diagram"
-        width="80%"
-        ok-text="Save"
-        cancel-text="Cancel"
-        @on-ok="update_metadata"
-        @on-cancel="rename_modal=false"
-      >
-        <Form :model="formSave" :rules="ruleSave">
-          <FormItem label="Nombre">
-            <Input type="text" v-model="formSave.name" placeholder="Nombre"></Input>
-          </FormItem>
-          <FormItem label="Description">
-            <Input type="text" v-model="formSave.description" placeholder="Descripción"></Input>
-          </FormItem>
-        </Form>
-      </Modal>
-
-      <Modal v-model="edit_audio_modal" title="Edit Audios" width="80%">
-        <Table
-          highlight-row
-          v-if="audios"
-          :columns="columns_audio"
-          :data="this.audios"
-          @on-current-change="val => audio_id = val.id"
-        ></Table>
         <div slot="footer">
-          <Button type="info" @click="rename_audio">Rename</Button>
-          <Button type="error" @click="delete_audio">Delete</Button>
+          <Button style="margin-right: 8px" type="error" @click="save_modal=false">Cancel</Button>
+          <Button type="primary" @click="save">Save</Button>
         </div>
       </Modal>
+
+      <!-- Edit diagram Modal -->
+      <Modal v-model="rename_modal" title="Edit diagram" width="40%">
+        <Form :model="formSave" :rules="ruleSave">
+          <FormItem label="Name">
+            <Input type="text" v-model="formSave.name" placeholder="name"></Input>
+          </FormItem>
+          <FormItem label="Description">
+            <Input type="text" v-model="formSave.description" placeholder="description"></Input>
+          </FormItem>
+        </Form>
+        <div slot="footer">
+          <Button type="error" @click="rename_modal=false">Cancel</Button>
+          <Button type="primary" @click="update_metadata">Save</Button>
+        </div>
+      </Modal>
+
+      <!-- Delete diagram Drawer -->
+      <Drawer v-model="delete_modal" title="Delete diagram" width="80%">
+        <Table highlight-row :columns="columns" :data="diagrams" @on-current-change="val=>diagram_id=val.id"></Table>
+        <div class="item demo-drawer-footer">
+          <Button style="margin-right: 8px" type="primary" @click="delete_modal=false">Cancel</Button>
+          <Button type="error" @click="del">Delete</Button>
+        </div>
+      </Drawer>
+
+      <!-- Edit audio Drawer -->
+      <Drawer v-model="edit_audio_modal" title="Edit Audios" width="70%">
+        <Table highlight-row v-if="audios" :columns="columns_audio" :data="audios" @on-current-change="val=>audio_id=val.id"></Table>
+        <div class="demo-drawer-footer">
+          <Button type="primary" @click="rename_audio">Rename</Button>
+          <Button type="error" @click="delete_audio">Delete</Button>
+        </div>
+      </Drawer>
 
       <Modal
         v-model="rename_audio_modal"
@@ -170,12 +164,7 @@
       </Modal>
 
       <!-- Upload audio Drawer -->
-      <Drawer
-        v-model="upld_audio_modal"
-        title="Upload audio"
-        width="50%"
-        :mask-closable="false"
-        :styles="{height: 'calc(100% - 55px)', overflow: 'auto', paddingBottom: '53px', position: 'static'}">
+      <Drawer v-model="upld_audio_modal" title="Upload audio" width="50%">
         <Form :model="formAudio">
           <FormItem label="Description">
             <Input type="text" v-model="formAudio.content" placeholder="description"></Input>
@@ -185,33 +174,16 @@
           </FormItem>
           <FormItem label="File">
             <br>
-            <Upload :before-upload="handleUpload" :action="this.backend + '/api/audios'">
-              <Button icon="ios-cloud-upload-outline">{{this.file.name || "Select the file to upload"}}</Button>
+            <Upload :before-upload="handleUpload" :action="backend + '/api/audios'">
+              <Button icon="ios-cloud-upload-outline">{{file.name || "Select the file to upload"}}</Button>
             </Upload>
           </FormItem>
         </Form>
         <div class="item demo-drawer-footer">
-          <Button style="margin-right: 8px" @click="upld_audio_modal = false">Cancel</Button>
-          <Button type="primary" @click="upload_audio">Submit</Button>
+          <Button style="margin-right: 8px" type="error" @click="upld_audio_modal=false">Cancel</Button>
+          <Button type="primary" @click="upload_audio">Upload</Button>
         </div>
       </Drawer>
-
-      <Modal
-        v-model="delete_modal"
-        title="Delete diagram"
-        width="80%"
-        ok-text="Delete"
-        cancel-text="Cancel"
-        @on-ok="del"
-        @on-cancel="delete_modal=false"
-      >
-        <Table
-          highlight-row
-          :columns="columns"
-          :data="diagrams"
-          @on-current-change="open"
-        ></Table>
-      </Modal>
     </Layout>
   </div>
 </template>
@@ -255,17 +227,18 @@ export default {
     open_modal: false,
     diagram_id: 0,
     columns: [
-      { type: "index", align: "center" },
-      { title: "Nombre", key: "name" },
-      { title: "Descripción", key: "description" },
-      { title: "Última actualización", key: "modified" }
+      { title: "id", key: "id", width: 65, sortable: true },
+      { title: "Name", key: "name" },
+      { title: "Description", key: "description" },
+      { title: "Updated at", key: "modified", sortable: true }
     ],
     edit_audio_modal: false,
     audio_id: 0,
     columns_audio: [
-      { type: "index", align: "center" },
-      { title: "Nombre", key: "name" },
-      { title: "Descripción", key: "content" }
+      { title: "id", key: "id", width: 65, sortable: true },
+      { title: "Name", key: "name" },
+      { title: "Description", key: "content" },
+      { title: "Category", key: "category", sortable: true }
     ],
     audioContent: "",
     save_modal: false,
@@ -422,7 +395,7 @@ export default {
       this.diagram_id = val.id;
       axios({
         method: "get",
-        url: this.backend + "/api/programs" + "/" + this.diagram_id,
+        url: this.backend + "/api/programs/" + this.diagram_id,
         withCredentials: true,
         crossDomain: true
       })
@@ -449,17 +422,17 @@ export default {
           console.log(response);
           this.diagrams.push(response.data);
           this.open(response.data);
-          this.open_modal = false;
+          this.save_modal = false;
         })
         .catch(error => {
           console.log(error);
-          this.open_modal = false;
+          this.save_modal = false;
         });
     },
     del() {
       axios({
         method: "delete",
-        url: this.backend + "/api/programs" + "/" + this.diagram_id,
+        url: this.backend + "/api/programs/" + this.diagram_id,
         withCredentials: true,
         crossDomain: true
       })
@@ -474,26 +447,28 @@ export default {
         });
     },
     update_content() {
+      var editor = JSON.parse(this.diagram);
       axios({
         method: "put",
-        url: this.backend + "/api/programs" + "/" + this.openedDiagram.id,
+        url: this.backend + "/api/programs/" + this.openedDiagram.id,
         withCredentials: true,
         crossDomain: true,
-        data: { content: JSON.parse(this.diagram) }
+        data: { content: editor }
       })
         .then(response => {
           console.log(response);
           //this.diagrams.push(response.data);
+          this.openedDiagram.content = editor;
         })
         .catch(error => {
           console.log(error);
         });
     },
     update_metadata() {
-      this.formSave.content = this.diagram;
+      this.formSave.content = JSON.parse(this.diagram);
       axios({
         method: "put",
-        url: this.backend + "/api/programs" + "/" + this.openedDiagram.id,
+        url: this.backend + "/api/programs/" + this.openedDiagram.id,
         withCredentials: true,
         crossDomain: true,
         headers: { "Content-Type": "application/json" },
@@ -502,11 +477,11 @@ export default {
         .then(response => {
           console.log(response);
           this.diagrams.push(response.data);
-          this.open_modal = false;
+          this.rename_modal = false;
         })
         .catch(error => {
           console.log(error);
-          this.open_modal = false;
+          this.rename_modal = false;
         });
     },
     resize() {
@@ -546,7 +521,7 @@ export default {
     delete_audio() {
       axios({
         method: "delete",
-        url: this.backend + "/api/audios" + "/" + this.audio_id,
+        url: this.backend + "/api/audios/" + this.audio_id,
         withCredentials: true,
         crossDomain: true
       })
@@ -565,7 +540,7 @@ export default {
     rename_content_audio() {
       axios({
         method: "put",
-        url: this.backend + "/api/audios" + "/" + this.audio_id,
+        url: this.backend + "/api/audios/" + this.audio_id,
         withCredentials: true,
         crossDomain: true,
         headers: { "Content-Type": "application/json" },
