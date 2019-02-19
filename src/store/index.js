@@ -117,6 +117,13 @@ export default new Vuex.Store({
     setAudios(state, audios) {
       state.audios = audios;
     },
+    addAudio(state, audio) {
+      state.audios.push(audio);
+    },
+    delAudio(state, audio_id) {
+      var new_audios = state.audios.filter(audio => audio.id !== audio_id);
+      state.audios = new_audios;
+    },
     setActions(state, actions) {
       state.actions = actions;
     },

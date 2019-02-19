@@ -121,11 +121,11 @@
         @on-cancel="save_modal=false"
       >
         <Form :model="formSave" :rules="ruleSave">
-          <FormItem label="Nombre">
-            <Input type="text" v-model="formSave.name" placeholder="Nombre"></Input>
+          <FormItem label="Name">
+            <Input type="text" v-model="formSave.name" placeholder="name"></Input>
           </FormItem>
           <FormItem label="Description">
-            <Input type="text" v-model="formSave.description" placeholder="Descripción"></Input>
+            <Input type="text" v-model="formSave.description" placeholder="Description"></Input>
           </FormItem>
         </Form>
       </Modal>
@@ -268,7 +268,6 @@ export default {
     ],
     edit_audio_modal: false,
     audio_id: 0,
-    audios: [],
     columns_audio: [
       { type: "index", align: "center" },
       { title: "Nombre", key: "name" },
@@ -300,14 +299,11 @@ export default {
     diagram() {
       return this.$store.state.diagram;
     },
+    audios() {
+      return this.$store.state.audios;
+    },
     savable() {
-      console.log(this.diagram);
-      console.log(JSON.stringify(this.openedDiagram.content));
-      
-      return (
-        this.diagram !==
-        JSON.stringify(this.openedDiagram.content)
-      );
+      return this.diagram !== JSON.stringify(this.openedDiagram.content);
     }
   },
   mounted() {
@@ -326,6 +322,8 @@ export default {
           break;
 
         case "save":
+          this.formSave.name = this.openedDiagram.name;
+          this.formSave.description = this.openedDiagram.description;
           this.save_modal = true;
           break;
 
@@ -352,19 +350,6 @@ export default {
           break;
 
         case "edit_audio":
-          axios({
-            method: "get",
-            url: this.backend + "/api/audios",
-            withCredentials: true,
-            crossDomain: true
-          })
-            .then(response => {
-              console.log(response);
-              this.audios = response.data;
-            })
-            .catch(error => {
-              console.log(error);
-            });
           this.edit_audio_modal = true;
           break;
 
@@ -540,11 +525,12 @@ export default {
       return false;
     },
     upload_audio() {
-      console.log(this.file);
       let form = new FormData();
       form.append("content", this.formAudio.content);
       form.append("category", this.formAudio.category);
       form.append("file", this.file);
+      console.log(form);
+      
       axios({
         method: "post",
         url: this.backend + "/api/audios",
@@ -555,7 +541,10 @@ export default {
       })
         .then(response => {
           console.log(response);
-          upld_audio_modal = false
+          this.upld_audio_modal = false;
+          var data  = response.data;
+          data['category'] = this.formAudio.category;
+          this.$store.commit('addAudio', data);
         })
         .catch(error => {
           console.log(error);
@@ -570,6 +559,7 @@ export default {
       })
         .then(response => {
           console.log(response);
+          this.$store.commit('delAudio', this.audio_id);
           this.edit_audio_modal = false;
         })
         .catch(error => {
