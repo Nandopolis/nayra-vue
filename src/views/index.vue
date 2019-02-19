@@ -25,6 +25,11 @@
   text-align: right;
   background: #fff;
 }
+.grid-container {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto auto;
+  grid-gap: 5px;
+}
 </style>
 
 <template>
@@ -33,33 +38,28 @@
       <!-- Header Menu -->
       <Header :style="{padding: '0 25px'}">
         <Menu mode="horizontal" theme="dark" @on-select="action">
-          <Row type="flex">
-            <Col span="4" class-name="nav-col">
-              <div class="ivu-menu-item">
-                <Icon type="ios-ionitron" size="30"></Icon>Nayra GPI
-              </div>
-            </Col>
-            <Col span="20">
-              <Row type="flex" justify="end">
-                <Col v-if="menu.visible" v-for="menu in header_menus" :key="menu.id" :span="menu.items ? '5':'3'">
-                  <Submenu v-if="menu.items" :name="menu.name">
-                    <template slot="title">
-                      <Icon :type="menu.icon"></Icon>
-                      {{menu.display}}
-                    </template>
-                    <MenuItem v-for="item in menu.items" :key="item.id" :name="item.name">
-                      {{item.display}}
-                      <Icon v-if="item.icon" :type="item.icon" :style="{float: 'right'}"></Icon>
-                    </MenuItem>
-                  </Submenu>
-                  <MenuItem v-else :name="menu.name">
-                    <Icon :type="menu.icon"></Icon>
-                    {{menu.display}}
-                  </MenuItem>
-                </Col>
-              </Row>
-            </Col>
-          </Row>
+          <div class="grid-container">
+            <div class="ivu-menu-item">
+              <Icon type="ios-ionitron" size="30"></Icon>Nayra GPI
+            </div>
+            <div class="grid-item"></div>
+            <div class="grid-item" v-if="menu.visible" v-for="menu in header_menus" :key="menu.id">
+              <Submenu v-if="menu.items" :name="menu.name">
+                <template slot="title">
+                  <Icon :type="menu.icon"></Icon>
+                  {{menu.display}}
+                </template>
+                <MenuItem v-for="item in menu.items" :key="item.id" :name="item.name">
+                  {{item.display}}
+                  <Icon v-if="item.icon" :type="item.icon" :style="{float: 'right'}"></Icon>
+                </MenuItem>
+              </Submenu>
+              <MenuItem v-else :name="menu.name">
+                <Icon :type="menu.icon"></Icon>
+                {{menu.display}}
+              </MenuItem>
+            </div>
+          </div>
         </Menu>
       </Header>
 
@@ -101,14 +101,8 @@
         v-model="open_modal"
         title="Saved programs"
         width="80%"
-        :mask-closable="false"
-      >
-        <Table
-          highlight-row
-          :columns="columns"
-          :data="diagrams"
-          @on-current-change="open"
-        ></Table>
+        :mask-closable="false">
+        <Table highlight-row :columns="columns" :data="diagrams" @on-current-change="open"></Table>
       </Drawer>
 
       <Modal
