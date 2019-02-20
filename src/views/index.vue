@@ -84,11 +84,7 @@
         </Row>
         
         <Row :style="{height: 'calc(100vh - 159px)', width: '100%'}">
-          <ReteComp
-            :style="{background: '#fff', height: 'calc(100vh - 159px'}"
-            :editor-json="openedDiagram.content"
-            ref="reteComp"
-          />
+          <ReteComp :style="{background: '#fff', height: 'calc(100vh - 159px'}" :editor-json="editorJson" ref="reteComp"/>
         </Row>
         
       </Content>
@@ -192,6 +188,7 @@ import ReteComp from "./ReteComp";
 import * as Diagrams from "../libs/SavedDiagrams.js";
 import axios from "axios";
 import config from "../config/config.js";
+import deepEqual from "deep-equal";
 
 export default {
   name: "Index",
@@ -266,11 +263,14 @@ export default {
     diagram() {
       return this.$store.state.diagram;
     },
+    editorJson() {
+      return JSON.stringify(this.openedDiagram.content);
+    },
     audios() {
       return this.$store.state.audios;
     },
     savable() {
-      return this.diagram !== JSON.stringify(this.openedDiagram.content);
+      return !deepEqual(JSON.parse(this.diagram), this.openedDiagram.content);
     }
   },
   mounted() {
@@ -485,8 +485,6 @@ export default {
         });
     },
     resize() {
-      this.header_menus[2].visible = !this.header_menus[2].visible;
-      this.header_menus[3].visible = !this.header_menus[3].visible;
       this.$refs["reteComp"].resize();
     },
     handleUpload(file) {

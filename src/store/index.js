@@ -7,7 +7,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    diagram: {},
+    diagram: '{"id":"demo@0.1.0","nodes":{}}',
     audios: [],
     actions: [],
     words: []

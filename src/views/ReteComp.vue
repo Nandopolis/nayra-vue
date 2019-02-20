@@ -33,12 +33,10 @@ export default {
   }),
   watch: {
     async editorJson(val, oldVal) {
-      if (JSON.stringify(val) !== JSON.stringify(oldVal)) {
-        console.log("editor-json changed");
-        await this.editor.fromJSON(this.editorJson);
-        this.setDiagram(JSON.stringify(this.editorJson));
-        this.resize();
-      }
+      console.log("editor-json changed");
+      await this.editor.fromJSON(JSON.parse(this.editorJson));
+      this.setDiagram(this.editorJson);
+      this.resize();
     }
   },
   methods: {
@@ -77,7 +75,7 @@ export default {
       this.editor.register(c);
     });
 
-    this.editor.fromJSON(this.editorJson);
+    this.editor.fromJSON(JSON.parse(this.editorJson));
     this.setDiagram(JSON.stringify(this.editor.toJSON()));
 
     this.editor.on(
