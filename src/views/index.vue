@@ -130,7 +130,7 @@
       </Modal>
 
       <!-- Delete diagram Drawer -->
-      <Drawer v-model="delete_modal" title="Delete diagram" width="80%">
+      <Drawer v-model="delete_modal" title="Delete diagram" width="70%">
         <Table highlight-row :columns="columns" :data="diagrams" @on-current-change="val=>diagram_id=val.id"></Table>
         <div class="item demo-drawer-footer">
           <Button style="margin-right: 8px" type="primary" @click="delete_modal=false">Cancel</Button>
@@ -142,21 +142,25 @@
       <Drawer v-model="edit_audio_modal" title="Edit Audios" width="70%">
         <Table highlight-row v-if="audios" :columns="columns_audio" :data="audios" @on-current-change="val=>audio_id=val.id"></Table>
         <div class="demo-drawer-footer">
-          <Button type="primary" @click="rename_audio">Rename</Button>
+          <Button type="primary" @click="rename_audio">Edit</Button>
           <Button type="error" @click="delete_audio">Delete</Button>
         </div>
       </Drawer>
 
-      <Modal
-        v-model="rename_audio_modal"
-        title="Rename audio"
-        width="80%"
-        ok-text="Save"
-        cancel-text="Cancel"
-        @on-ok="rename_content_audio"
-        @on-cancel="rename_audio_modal=false"
-      >Desccripción
-        <Input type="text" v-model="audioContent" placeholder="Descripción"></Input>
+      <!-- Edit audio Modal -->
+      <Modal v-model="rename_audio_modal" title="Edit audio" width="40%">
+        <Form :model="formAudio">
+          <FormItem label="Description">
+            <Input type="text" v-model="formAudio.content" placeholder="description"></Input>
+          </FormItem>
+          <FormItem label="Category">
+            <Input type="text" v-model="formAudio.category" placeholder="category"></Input>
+          </FormItem>
+        </Form>
+        <div slot="footer">
+          <Button type="error" @click="rename_audio_modal=false">Cancel</Button>
+          <Button type="primary" @click="rename_content_audio">Save</Button>
+        </div>
       </Modal>
 
       <!-- Upload audio Drawer -->
@@ -256,7 +260,7 @@ export default {
     rename_modal: false,
     rename_audio_modal: false,
     upld_audio_modal: false,
-    formAudio: {},
+    formAudio: { content: "", category: "" },
     file: ""
   }),
   computed: {
@@ -313,7 +317,8 @@ export default {
         case "upload_audio":
           this.upld_audio_modal = true;
           this.file = "";
-          this.formAudio = {};
+          this.formAudio.content = "";
+          this.formAudio.category = "";
           break;
 
         case "edit_audio":
@@ -533,6 +538,10 @@ export default {
         });
     },
     rename_audio() {
+      var audio = this.$store.getters.audio(this.audio_id)
+      this.formAudio.content = audio.content;
+      this.formAudio.category = audio.category;
+      this.edit_audio_modal = false;
       this.rename_audio_modal = true;
     },
     rename_content_audio() {
@@ -542,11 +551,15 @@ export default {
         withCredentials: true,
         crossDomain: true,
         headers: { "Content-Type": "application/json" },
-        data: { content: this.audioContent }
+        data: this.formAudio
       })
         .then(response => {
           console.log(response);
-          this.edit_audio_modal = false;
+          var data = response.data;
+          data.category = this.formAudio.category;
+          this.$store.commit('delAudio', this.audio_id);
+          this.$store.commit('addAudio', data);
+          this.rename_audio_modal = false;
         })
         .catch(error => {
           console.log(error);
