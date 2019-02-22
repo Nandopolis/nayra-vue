@@ -514,7 +514,6 @@ export default {
         .then(response => {
           this.upld_audio_modal = false;
           var data  = response.data;
-          data['category'] = this.formAudio.category;
           this.$store.commit('addAudio', data);
         })
         .catch(error => {
