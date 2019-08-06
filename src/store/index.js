@@ -138,9 +138,14 @@ export default new Vuex.Store({
     addAudio(state, audio) {
       state.audios.push(audio);
     },
+    updateAudio(state, audio) {
+      state.audios = [
+        ...state.audios.filter(item => item.id !== audio.id),
+        audio
+      ];
+    },
     delAudio(state, audio_id) {
-      var new_audios = state.audios.filter(audio => audio.id !== audio_id);
-      state.audios = new_audios;
+      state.audios = [...state.audios.filter(audio => audio.id !== audio_id)];
     },
     setAudioCategories(state, audio_categories) {
       state.audio_categories = audio_categories;
