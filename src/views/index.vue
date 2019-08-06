@@ -139,8 +139,12 @@
       </Drawer>
 
       <!-- Edit audio Drawer -->
-      <Drawer v-model="edit_audio_modal" title="Edit Audios" width="70%">
-        <Table highlight-row v-if="audios" :columns="columns_audio" :data="audios" @on-current-change="val=>audio_id=val.id"></Table>
+      <Drawer v-model="edit_audio_modal" title="Manage Audios" width="70%">
+        <Table highlight-row v-if="audios" :columns="columns_audio" :data="audios" @on-current-change="val=>audio_id=val.id">
+          <template slot-scope="{row}" slot="category">
+            {{ getAudioCategory(row.category_id).name }}
+          </template>
+        </Table>
         <div class="demo-drawer-footer">
           <Button type="primary" @click="rename_audio">Edit</Button>
           <Button type="error" @click="delete_audio">Delete</Button>
@@ -150,11 +154,15 @@
       <!-- Edit audio Modal -->
       <Modal v-model="rename_audio_modal" title="Edit audio" width="40%">
         <Form :model="formAudio">
-          <FormItem label="Description">
-            <Input type="text" v-model="formAudio.content" placeholder="description"></Input>
-          </FormItem>
           <FormItem label="Category">
-            <Input type="text" v-model="formAudio.category" placeholder="category"></Input>
+            <Select v-model="formAudio.category_id">
+              <Option v-for="item in audioCategories" :value="item.id" :key="item.id">
+                {{ item.name }}
+              </Option>
+            </Select>
+          </FormItem>
+          <FormItem label="Content">
+            <Input type="textarea" v-model="formAudio.content" :autosize="{minRows: 5}" placeholder="audio content"></Input>
           </FormItem>
         </Form>
         <div slot="footer">
@@ -166,16 +174,20 @@
       <!-- Upload audio Drawer -->
       <Drawer v-model="upld_audio_modal" title="Upload audio" width="50%">
         <Form :model="formAudio">
-          <FormItem label="Description">
-            <Input type="text" v-model="formAudio.content" placeholder="description"></Input>
-          </FormItem>
           <FormItem label="Category">
-            <Input type="text" v-model="formAudio.category" placeholder="category"></Input>
+            <Select v-model="formAudio.category_id">
+              <Option v-for="item in audioCategories" :value="item.id" :key="item.id">
+                {{ item.name }}
+              </Option>
+            </Select>
+          </FormItem>
+          <FormItem label="Content">
+            <Input type="textarea" v-model="formAudio.content" :autosize="{minRows: 5}" placeholder="audio content"></Input>
           </FormItem>
           <FormItem label="File">
             <br>
             <Upload :before-upload="handleUpload" :action="backend + '/api/audios'">
-              <Button icon="ios-cloud-upload-outline">{{file.name || "Select the file to upload"}}</Button>
+              <Button icon="md-cloud-upload">{{file.name || "Select the file to upload"}}</Button>
             </Upload>
           </FormItem>
         </Form>
@@ -184,6 +196,42 @@
           <Button type="primary" @click="upload_audio">Upload</Button>
         </div>
       </Drawer>
+
+      <!-- Edit audio_category Drawer -->
+      <Drawer v-model="edit_audio_category_modal" title="Manage Audio Categoriess" width="70%">
+        <Button type="primary" style="margin-bottom: 15px;" icon="md-add" @click="new_audio_category">New</Button>
+        <Table highlight-row v-if="audioCategories" :columns="columns_audio_category" :data="audioCategories" @on-current-change="val=>audio_category_id=val.id"></Table>
+        <div class="demo-drawer-footer">
+          <Button type="primary" @click="edit_audio_category">Edit</Button>
+          <Button type="error" :disabled="!$store.getters.is_category_empty(audio_category_id)" @click="delete_audio_category">Delete</Button>
+        </div>
+      </Drawer>
+
+      <!-- create audio category Modal -->
+      <Modal v-model="create_audio_category_modal" title="audio category" width="40%">
+        <Form :model="formAudioCategory">
+          <FormItem label="Category Name">
+            <Input type="text" v-model="formAudioCategory.name" placeholder="audio category name"></Input>
+          </FormItem>
+        </Form>
+        <div slot="footer">
+          <Button type="error" @click="create_audio_category_modal=false">Cancel</Button>
+          <Button type="primary" @click="create_audio_category">Save</Button>
+        </div>
+      </Modal>
+
+      <!-- Edit audio category Modal -->
+      <Modal v-model="save_audio_category_modal" title="audio category" width="40%">
+        <Form :model="formAudioCategory">
+          <FormItem label="Category Name">
+            <Input type="text" v-model="formAudioCategory.name" placeholder="audio category name"></Input>
+          </FormItem>
+        </Form>
+        <div slot="footer">
+          <Button type="error" @click="save_audio_category_modal=false">Cancel</Button>
+          <Button type="primary" @click="save_audio_category">Save</Button>
+        </div>
+      </Modal>
     </Layout>
   </div>
 </template>
@@ -215,8 +263,9 @@ export default {
       {
         id: 2, name: "2", visible: true, display: "Audios", icon: "ios-pulse",
         items: [
-          { id: 1, name: "upload_audio", display: "Upload", icon: "ios-cloud-upload-outline" },
-          { id: 2, name: "edit_audio", display: "Edit", icon: "ios-clipboard-outline" }
+          { id: 1, name: "upload_audio", display: "Upload", icon: "md-cloud-upload" },
+          { id: 2, name: "edit_audio", display: "Manage", icon: "md-clipboard" },
+          { id: 3, name: "edit_audio_category", display: "Categories", icon: "logo-buffer" },
         ]
       },
       { id: 3, name: "run", display: "Run", icon: "ios-play", visible: true },
@@ -233,13 +282,24 @@ export default {
       { title: "Description", key: "description" },
       { title: "Updated at", key: "modified", sortable: true }
     ],
+    edit_audio_category_modal: false,
+    audio_category_id: 0,
+    columns_audio_category: [
+      { title: "id", key: "id", width: 65, sortable: true },
+      { title: "Name", key: "name" },
+      { title: "Modified Date", key: "modified" },
+    ],
+
+    formAudioCategory: { name: "" },
+    create_audio_category_modal: false,
+    save_audio_category_modal: false,
     edit_audio_modal: false,
     audio_id: 0,
     columns_audio: [
       { title: "id", key: "id", width: 65, sortable: true },
       { title: "Name", key: "name" },
       { title: "Description", key: "content" },
-      { title: "Category", key: "category", sortable: true }
+      { title: "Category", slot: "category", sortable: true }
     ],
     audioContent: "",
     save_modal: false,
@@ -260,7 +320,7 @@ export default {
     rename_modal: false,
     rename_audio_modal: false,
     upld_audio_modal: false,
-    formAudio: { content: "", category: "" },
+    formAudio: { content: "", category_id: "" },
     file: ""
   }),
   computed: {
@@ -270,6 +330,9 @@ export default {
     editorJson() {
       return JSON.stringify(this.openedDiagram.content);
     },
+    audioCategories() {
+      return this.$store.state.audio_categories;
+    },
     audios() {
       return this.$store.state.audios;
     },
@@ -278,11 +341,15 @@ export default {
     }
   },
   mounted() {
+    this.$store.dispatch('loadAudioCategories');
     this.$store.dispatch('loadAudios');
     this.$store.dispatch('loadActions');
     this.$store.dispatch('loadWords');
   },
   methods: {
+    getAudioCategory(id) {
+      return this.$store.getters.audio_category(id);
+    },
     action(name) {
       console.log(name);
       switch (name) {
@@ -323,6 +390,10 @@ export default {
 
         case "edit_audio":
           this.edit_audio_modal = true;
+          break;
+
+        case "edit_audio_category":
+          this.edit_audio_category_modal = true;
           break;
 
         case "run":
@@ -499,7 +570,7 @@ export default {
     upload_audio() {
       let form = new FormData();
       form.append("content", this.formAudio.content);
-      form.append("category", this.formAudio.category);
+      form.append("category_id", this.formAudio.category_id);
       form.append("file", this.file);
       console.log(form);
       
@@ -539,8 +610,7 @@ export default {
     rename_audio() {
       var audio = this.$store.getters.audio(this.audio_id)
       this.formAudio.content = audio.content;
-      this.formAudio.category = audio.category;
-      this.edit_audio_modal = false;
+      this.formAudio.category_id = audio.category_id;
       this.rename_audio_modal = true;
     },
     rename_content_audio() {
@@ -555,7 +625,6 @@ export default {
         .then(response => {
           console.log(response);
           var data = response.data;
-          data.category = this.formAudio.category;
           this.$store.commit('delAudio', this.audio_id);
           this.$store.commit('addAudio', data);
           this.rename_audio_modal = false;
@@ -563,7 +632,70 @@ export default {
         .catch(error => {
           console.log(error);
         });
-    }
+    },
+    delete_audio_category() {
+      axios({
+        method: "delete",
+        url: this.backend + "/api/audios/categories/" + this.audio_category_id,
+        withCredentials: true,
+        crossDomain: true
+      })
+        .then(response => {
+          this.$store.commit('delAudioCategory', this.audio_category_id);
+          this.edit_audio_category_modal = false;
+        })
+        .catch(error => {
+          console.log(error);
+          this.edit_audio_category_modal = false;
+        });
+    },
+    new_audio_category() {
+      this.formAudioCategory.name = "";
+      this.create_audio_category_modal = true;
+    },
+    edit_audio_category() {
+      var audio_category = this.$store.getters.audio_category(this.audio_category_id)
+      this.formAudioCategory.name = audio_category.name;
+      this.save_audio_category_modal = true;
+    },
+    save_audio_category() {
+      axios({
+        method: "put",
+        url: this.backend + "/api/audios/categories/" + this.audio_category_id,
+        withCredentials: true,
+        crossDomain: true,
+        headers: { "Content-Type": "application/json" },
+        data: this.formAudioCategory
+      })
+        .then(response => {
+          console.log(response);
+          var data = response.data;
+          this.$store.commit('updateAudioCategory', data);
+          this.save_audio_category_modal = false;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    create_audio_category() {
+      axios({
+        method: "post",
+        url: this.backend + "/api/audios/categories",
+        withCredentials: true,
+        crossDomain: true,
+        headers: { "Content-Type": "application/json" },
+        data: this.formAudioCategory
+      })
+        .then(response => {
+          console.log(response);
+          var data = response.data;
+          this.$store.commit('addAudioCategory', data);
+          this.create_audio_category_modal = false;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
   },
   created() {
     this.openedDiagram = Diagrams.newEditor;
