@@ -8,22 +8,28 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     diagram: '{"id":"demo@0.1.0","nodes":{}}',
+    programs: [],
     audios: [],
     audio_categories: [],
     actions: [],
     words: []
   },
   getters: {
+    program: state => id => {
+      return state.programs.find(item => {
+        return item.id === id;
+      })
+    },
     formated_audios: state => {
       var audios = [];
       state.audios.map((audio) => {
-        var group_value = audios.findIndex(item => item.category_id === audio.category_id);
+        var group_value = audios.findIndex(item => item.value === audio.category_id);
         if (-1 !== group_value) {
           audios[group_value].children.push({value: audio.id, label: audio.name, content: audio.content});
         } else {
           var category = state.audio_categories.find(item => item.id === audio.category_id);
           audios.push({
-            value: category.name, label: category.name, category_id: category.id,
+            value: category.id, label: category.name,
             children: [{ value: audio.id, label: audio.name, content: audio.content }]
           });
         }
@@ -71,6 +77,20 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    loadPrograms({commit}) {
+      axios({
+        method: "get",
+        url: config.backend + "/api/programs",
+        withCredentials: true,
+        crossDomain: true
+      })
+        .then(programs => {
+          commit('setPrograms', programs.data);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
     loadAudios({commit}) {
       axios({
         method: "get",
@@ -131,6 +151,21 @@ export default new Vuex.Store({
   mutations: {
     setDiagram(state, diagram) {
       state.diagram = diagram;
+    },
+    setPrograms(state, programs) {
+      state.programs = programs;
+    },
+    addProgram(state, program) {
+      state.programs.push(program);
+    },
+    updateProgram(state, program) {
+      state.programs = [
+        ...state.programs.filter(item => item.id !== program.id),
+        program
+      ];
+    },
+    delProgram(state, program_id) {
+      state.programs = [...state.programs.filter(program => program.id !== program_id)];
     },
     setAudios(state, audios) {
       state.audios = audios;

@@ -74,12 +74,8 @@
             </BreadcrumbItem>
           </Breadcrumb>
           <ButtonGroup shape="circle" :style="{margin: '0 10px 0', float: 'right'}">
-            <Button @click="resize">
-              <Icon type="md-resize" /> Resize
-            </Button>
-            <Button @click="update_content">
-              Save <Icon type="md-done-all" />
-            </Button>
+            <Button @click="resize"><Icon type="md-resize" /> Resize </Button>
+            <Button @click="update"> Save <Icon type="md-done-all" /></Button>
           </ButtonGroup>
         </Row>
         
@@ -94,7 +90,7 @@
       
       <!-- Open diagram Drawer -->
       <Drawer v-model="open_modal" title="Saved programs" width="70%">
-        <Table highlight-row :columns="columns" :data="diagrams" @on-current-change="open"></Table>
+        <Table v-if="programs" highlight-row :columns="columns" :data="programs" @on-current-change="open"></Table>
       </Drawer>
 
       <!-- Save as diagram Modal -->
@@ -125,13 +121,13 @@
         </Form>
         <div slot="footer">
           <Button type="error" @click="rename_modal=false">Cancel</Button>
-          <Button type="primary" @click="update_metadata">Save</Button>
+          <Button type="primary" @click="update">Save</Button>
         </div>
       </Modal>
 
       <!-- Delete diagram Drawer -->
-      <Drawer v-model="delete_modal" title="Delete diagram" width="70%">
-        <Table highlight-row :columns="columns" :data="diagrams" @on-current-change="val=>diagram_id=val.id"></Table>
+      <Drawer v-model="delete_modal" title="Delete Program" width="70%">
+        <Table v-if="programs" highlight-row :columns="columns" :data="programs" @on-current-change="val=>diagram_id=val.id"></Table>
         <div class="item demo-drawer-footer">
           <Button style="margin-right: 8px" type="primary" @click="delete_modal=false">Cancel</Button>
           <Button type="error" @click="del">Delete</Button>
@@ -272,8 +268,7 @@ export default {
       { id: 4, name: "stop", display: "Stop", icon: "ios-pause", visible: false },
       { id: 5, name: "help", display: "Help", icon: "md-help", visible: true }
     ],
-    diagrams: [],
-    openedDiagram: [],
+    openedDiagram: {},
     open_modal: false,
     diagram_id: 0,
     columns: [
@@ -327,8 +322,11 @@ export default {
     diagram() {
       return this.$store.state.diagram;
     },
+    programs() {
+      return this.$store.state.programs;
+    },
     editorJson() {
-      return JSON.stringify(this.openedDiagram.content);
+      return this.openedDiagram.content;
     },
     audioCategories() {
       return this.$store.state.audio_categories;
@@ -337,10 +335,11 @@ export default {
       return this.$store.state.audios;
     },
     savable() {
-      return !deepEqual(JSON.parse(this.diagram), this.openedDiagram.content);
+      return !deepEqual(JSON.parse(this.diagram), JSON.parse(this.openedDiagram.content));
     }
   },
   mounted() {
+    this.$store.dispatch('loadPrograms');
     this.$store.dispatch('loadAudioCategories');
     this.$store.dispatch('loadAudios');
     this.$store.dispatch('loadActions');
@@ -354,9 +353,7 @@ export default {
       console.log(name);
       switch (name) {
         case "open":
-          this.fetchDiagrams().then(() => {
-            this.open_modal = true;
-          });
+          this.open_modal = true;
           break;
 
         case "save":
@@ -366,9 +363,7 @@ export default {
           break;
 
         case "delete":
-          this.fetchDiagrams().then(() => {
-            this.delete_modal = true;
-          });
+          this.delete_modal = true;
           break;
 
         case "rename":
@@ -443,21 +438,6 @@ export default {
           break;
       }
     },
-    fetchDiagrams() {
-      return axios({
-        method: "get",
-        url: this.backend + "/api/programs",
-        withCredentials: true,
-        crossDomain: true
-      })
-        .then(response => {
-          console.log(response);
-          this.diagrams = response.data;
-        })
-        .catch(error => {
-          console.log(error);
-        });
-    },
     handleSubmit(name) {
       console.log("validating");
 
@@ -469,23 +449,11 @@ export default {
     },
     open(val) {
       this.diagram_id = val.id;
-      axios({
-        method: "get",
-        url: this.backend + "/api/programs/" + this.diagram_id,
-        withCredentials: true,
-        crossDomain: true
-      })
-        .then(response => {
-          console.log(response);
-          this.openedDiagram = response.data;
-          this.open_modal = false;
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      this.openedDiagram = this.$store.getters.program(this.diagram_id);
+      this.open_modal = false;
     },
     save() {
-      this.formSave.content = JSON.parse(this.diagram);
+      this.formSave.content = this.diagram;
       axios({
         method: "post",
         url: this.backend + "/api/programs",
@@ -496,13 +464,13 @@ export default {
       })
         .then(response => {
           console.log(response);
-          this.diagrams.push(response.data);
-          this.open(response.data);
+          this.$store.commit('addProgram', response.data);
+          this.diagram_id = response.data.id;
+          this.openedDiagram = response.data;
           this.save_modal = false;
         })
         .catch(error => {
           console.log(error);
-          this.save_modal = false;
         });
     },
     del() {
@@ -514,34 +482,15 @@ export default {
       })
         .then(response => {
           console.log(response);
-          //this.diagrams.push(response.data);
+          this.$store.commit('delProgram', this.diagram_id)
           this.delete_modal = false;
-        })
-        .catch(error => {
-          console.log(error);
-          this.delete_modal = false;
-        });
-    },
-    update_content() {
-      var editor = JSON.parse(this.diagram);
-      axios({
-        method: "put",
-        url: this.backend + "/api/programs/" + this.openedDiagram.id,
-        withCredentials: true,
-        crossDomain: true,
-        data: { content: editor }
-      })
-        .then(response => {
-          console.log(response);
-          //this.diagrams.push(response.data);
-          this.openedDiagram.content = editor;
         })
         .catch(error => {
           console.log(error);
         });
     },
-    update_metadata() {
-      this.formSave.content = JSON.parse(this.diagram);
+    update() {
+      this.formSave.content = this.diagram;
       axios({
         method: "put",
         url: this.backend + "/api/programs/" + this.openedDiagram.id,
@@ -552,7 +501,7 @@ export default {
       })
         .then(response => {
           console.log(response);
-          this.diagrams.push(response.data);
+          this.$store.commit('updateProgram', response.data)
           this.rename_modal = false;
         })
         .catch(error => {
