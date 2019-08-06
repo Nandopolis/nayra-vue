@@ -30,13 +30,10 @@ export default {
   },
   created() {
     if (undefined !== this.initial) {
-      var initial_audio = this.$store.getters.audio(this.initial)
-      if ('audio' === initial_audio.category) {
-        this.value[0] = initial_audio.id;
-      } else {
-        this.value[0] = initial_audio.category;
-        this.value[1] = initial_audio.id;
-      }
+      console.log(this.initial);
+      var initial_audio = this.$store.getters.audio(this.initial);
+      this.value[0] = initial_audio.category_id;
+      this.value[1] = initial_audio.id;
     }
     if (!this.audios) {
       this.$store.dispatch('loadAudios');
