@@ -75,7 +75,7 @@
           </Breadcrumb>
           <ButtonGroup shape="circle" :style="{margin: '0 10px 0', float: 'right'}">
             <Button @click="resize"><Icon type="md-resize" /> Resize </Button>
-            <Button @click="update"> Save <Icon type="md-done-all" /></Button>
+            <Button @click="update_content"> Save <Icon type="md-done-all" /></Button>
           </ButtonGroup>
         </Row>
         
@@ -489,6 +489,11 @@ export default {
           console.log(error);
         });
     },
+    update_content() {
+      this.formSave.name = this.openedDiagram.name;
+      this.formSave.description = this.openedDiagram.description;
+      this.update();
+    },
     update() {
       this.formSave.content = this.diagram;
       axios({
@@ -502,6 +507,7 @@ export default {
         .then(response => {
           console.log(response);
           this.$store.commit('updateProgram', response.data)
+          this.openedDiagram = response.data;
           this.rename_modal = false;
         })
         .catch(error => {
