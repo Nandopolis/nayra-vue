@@ -17,11 +17,11 @@
   "dependencies": {
     "babel-polyfill": "^6.22.0",
     "alight": "^0.14.1",
-    "axios": ">=0.18.1",
+    "axios": "^0.18.1",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "deep-equal": "^1.0.1",
     "iview": "^3.2.2",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.13",
     "rete": "^1.4.1-rc.1",
     "rete-area-plugin": "^0.2.0",
     "rete-comment-plugin": "^0.6.0",
