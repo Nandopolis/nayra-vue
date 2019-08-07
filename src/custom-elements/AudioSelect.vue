@@ -30,7 +30,6 @@ export default {
   },
   created() {
     if (undefined !== this.initial) {
-      console.log(this.initial);
       var initial_audio = this.$store.getters.audio(this.initial);
       this.value[0] = initial_audio.category_id;
       this.value[1] = initial_audio.id;
