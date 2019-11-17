@@ -1,5 +1,5 @@
 <template>
-  <input-text @input="onInput"></input-text>
+  <input-text :initial="this.getData('text')" @input="onInput"></input-text>
 </template>
 
 <script>
