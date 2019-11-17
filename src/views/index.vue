@@ -276,7 +276,7 @@ export default {
     open_modal: false,
     diagram_id: 0,
     columns: [
-      { title: "id", key: "id", width: 65, sortable: true },
+      { title: "id", key: "id", width: 65, sortable: true, sortType: "desc" },
       { title: "Name", key: "name" },
       { title: "Description", key: "description" },
       { title: "Updated at", key: "modified", sortable: true }
@@ -298,7 +298,7 @@ export default {
       { title: "id", key: "id", width: 65, sortable: true },
       { title: "Name", key: "name" },
       { title: "Description", key: "content" },
-      { title: "Category", slot: "category", sortable: true }
+      { title: "Category", slot: "category", sortable: true, sortType: "asc" }
     ],
     audioContent: "",
     save_modal: false,
