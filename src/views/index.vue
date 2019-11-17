@@ -77,6 +77,10 @@
             <Button @click="resize"><Icon type="md-resize" /> Resize </Button>
             <Button @click="update_content"> Save <Icon type="md-done-all" /></Button>
           </ButtonGroup>
+          <div :style="{margin: '5px', float: 'right', fontSize:'14px'}">
+            {{processText}}
+            <Switch size="large" v-model="processing" true-value="online" false-value="offline"/>
+          </div>
         </Row>
         
         <Row :style="{height: 'calc(100vh - 159px)', width: '100%'}">
@@ -316,26 +320,20 @@ export default {
     rename_audio_modal: false,
     upld_audio_modal: false,
     formAudio: { content: "", category_id: "" },
-    file: ""
+    file: "",
+    processing: "offline",
   }),
   computed: {
-    diagram() {
-      return this.$store.state.diagram;
-    },
-    programs() {
-      return this.$store.state.programs;
-    },
-    editorJson() {
-      return this.openedDiagram.content;
-    },
-    audioCategories() {
-      return this.$store.state.audio_categories;
-    },
-    audios() {
-      return this.$store.state.audios;
-    },
+    diagram() { return this.$store.state.diagram; },
+    programs() { return this.$store.state.programs; },
+    editorJson() { return this.openedDiagram.content; },
+    audioCategories() { return this.$store.state.audio_categories; },
+    audios() { return this.$store.state.audios; },
     savable() {
       return !deepEqual(JSON.parse(this.diagram), JSON.parse(this.openedDiagram.content));
+    },
+    processText() {
+      return this.processing.charAt(0).toUpperCase() + this.processing.slice(1);
     }
   },
   mounted() {
@@ -346,73 +344,59 @@ export default {
     this.$store.dispatch('loadWords');
   },
   methods: {
-    getAudioCategory(id) {
-      return this.$store.getters.audio_category(id);
-    },
+    getAudioCategory(id) { return this.$store.getters.audio_category(id); },
     action(name) {
       console.log(name);
       switch (name) {
         case "open":
           this.open_modal = true;
           break;
-
         case "save":
           this.formSave.name = this.openedDiagram.name;
           this.formSave.description = this.openedDiagram.description;
           this.save_modal = true;
           break;
-
         case "delete":
           this.delete_modal = true;
           break;
-
         case "rename":
           this.formSave.name = this.openedDiagram.name;
           this.formSave.description = this.openedDiagram.description;
           this.rename_modal = true;
           break;
-
         case "new":
           this.openedDiagram = Diagrams.newEditor;
           break;
-
         case "upload_audio":
           this.upld_audio_modal = true;
           this.file = "";
           this.formAudio.content = "";
           this.formAudio.category = "";
           break;
-
         case "edit_audio":
           this.edit_audio_modal = true;
           break;
-
         case "edit_audio_category":
           this.edit_audio_category_modal = true;
           break;
-
         case "run":
           this.header_menus[2].visible = false;
           this.header_menus[3].visible = true;
           axios({
             method: "get",
-            url:
-              this.backend + "/api/programs/" + this.openedDiagram.id + "/run",
+            url: this.backend + "/api/programs/" + this.openedDiagram.id + "/run" + "?proc=" + this.processing,
             withCredentials: true,
             crossDomain: true
-          })
-            .then(response => {
-              console.log(response);
-              this.header_menus[2].visible = true;
-              this.header_menus[3].visible = false;
-            })
-            .catch(error => {
-              console.log(error);
-              this.header_menus[2].visible = true;
-              this.header_menus[3].visible = false;
-            });
+          }).then(response => {
+            console.log(response);
+            this.header_menus[2].visible = true;
+            this.header_menus[3].visible = false;
+          }).catch(error => {
+            console.log(error);
+            this.header_menus[2].visible = true;
+            this.header_menus[3].visible = false;
+          });
           break;
-
         case "stop":
           this.header_menus[2].visible = true;
           this.header_menus[3].visible = false;
@@ -421,31 +405,19 @@ export default {
             url: this.backend + "/api/programs/stop",
             withCredentials: true,
             crossDomain: true
-          })
-            .then(response => {
-              console.log(response);
-              this.header_menus[2].visible = false;
-              this.header_menus[3].visible = true;
-            })
-            .catch(error => {
-              console.log(error);
-              this.header_menus[2].visible = false;
-              this.header_menus[3].visible = true;
-            });
+          }).then(response => {
+            console.log(response);
+            this.header_menus[2].visible = false;
+            this.header_menus[3].visible = true;
+          }).catch(error => {
+            console.log(error);
+            this.header_menus[2].visible = false;
+            this.header_menus[3].visible = true;
+          });
           break;
-
         default:
           break;
       }
-    },
-    handleSubmit(name) {
-      console.log("validating");
-
-      this.$refs[name].validate(valid => {
-        console.log(valid);
-
-        return valid;
-      });
     },
     open(val) {
       this.diagram_id = val.id;
@@ -461,17 +433,15 @@ export default {
         crossDomain: true,
         headers: { "Content-Type": "application/json" },
         data: this.formSave
-      })
-        .then(response => {
-          console.log(response);
-          this.$store.commit('addProgram', response.data);
-          this.diagram_id = response.data.id;
-          this.openedDiagram = response.data;
-          this.save_modal = false;
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      }).then(response => {
+        console.log(response);
+        this.$store.commit('addProgram', response.data);
+        this.diagram_id = response.data.id;
+        this.openedDiagram = response.data;
+        this.save_modal = false;
+      }).catch(error => {
+        console.log(error);
+      });
     },
     del() {
       axios({
@@ -479,15 +449,13 @@ export default {
         url: this.backend + "/api/programs/" + this.diagram_id,
         withCredentials: true,
         crossDomain: true
-      })
-        .then(response => {
-          console.log(response);
-          this.$store.commit('delProgram', this.diagram_id)
-          this.delete_modal = false;
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      }).then(response => {
+        console.log(response);
+        this.$store.commit('delProgram', this.diagram_id)
+        this.delete_modal = false;
+      }).catch(error => {
+        console.log(error);
+      });
     },
     update_content() {
       this.formSave.name = this.openedDiagram.name;
@@ -503,21 +471,17 @@ export default {
         crossDomain: true,
         headers: { "Content-Type": "application/json" },
         data: this.formSave
-      })
-        .then(response => {
-          console.log(response);
-          this.$store.commit('updateProgram', response.data)
-          this.openedDiagram = response.data;
-          this.rename_modal = false;
-        })
-        .catch(error => {
-          console.log(error);
-          this.rename_modal = false;
-        });
+      }).then(response => {
+        console.log(response);
+        this.$store.commit('updateProgram', response.data)
+        this.openedDiagram = response.data;
+        this.rename_modal = false;
+      }).catch(error => {
+        console.log(error);
+        this.rename_modal = false;
+      });
     },
-    resize() {
-      this.$refs["reteComp"].resize();
-    },
+    resize() { this.$refs["reteComp"].resize(); },
     handleUpload(file) {
       this.file = file;
       return false;
@@ -527,8 +491,6 @@ export default {
       form.append("content", this.formAudio.content);
       form.append("category_id", this.formAudio.category_id);
       form.append("file", this.file);
-      console.log(form);
-      
       axios({
         method: "post",
         url: this.backend + "/api/audios",
@@ -536,15 +498,12 @@ export default {
         crossDomain: true,
         mimeType: "multipart/form-data",
         data: form
-      })
-        .then(response => {
-          this.upld_audio_modal = false;
-          var data  = response.data;
-          this.$store.commit('addAudio', data);
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      }).then(response => {
+        this.upld_audio_modal = false;
+        this.$store.commit('addAudio', response.data);
+      }).catch(error => {
+        console.log(error);
+      });
     },
     delete_audio() {
       axios({
@@ -552,15 +511,13 @@ export default {
         url: this.backend + "/api/audios/" + this.audio_id,
         withCredentials: true,
         crossDomain: true
-      })
-        .then(response => {
-          this.$store.commit('delAudio', this.audio_id);
-          this.edit_audio_modal = false;
-        })
-        .catch(error => {
-          console.log(error);
-          this.edit_audio_modal = false;
-        });
+      }).then(response => {
+        this.$store.commit('delAudio', this.audio_id);
+        this.edit_audio_modal = false;
+      }).catch(error => {
+        console.log(error);
+        this.edit_audio_modal = false;
+      });
     },
     rename_audio() {
       var audio = this.$store.getters.audio(this.audio_id)
@@ -576,17 +533,14 @@ export default {
         crossDomain: true,
         headers: { "Content-Type": "application/json" },
         data: this.formAudio
-      })
-        .then(response => {
-          console.log(response);
-          var data = response.data;
-          this.$store.commit('delAudio', this.audio_id);
-          this.$store.commit('addAudio', data);
-          this.rename_audio_modal = false;
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      }).then(response => {
+        console.log(response);
+        this.$store.commit('delAudio', this.audio_id);
+        this.$store.commit('addAudio', response.data);
+        this.rename_audio_modal = false;
+      }).catch(error => {
+        console.log(error);
+      });
     },
     delete_audio_category() {
       axios({
@@ -594,15 +548,13 @@ export default {
         url: this.backend + "/api/audios/categories/" + this.audio_category_id,
         withCredentials: true,
         crossDomain: true
-      })
-        .then(response => {
-          this.$store.commit('delAudioCategory', this.audio_category_id);
-          this.edit_audio_category_modal = false;
-        })
-        .catch(error => {
-          console.log(error);
-          this.edit_audio_category_modal = false;
-        });
+      }).then(response => {
+        this.$store.commit('delAudioCategory', this.audio_category_id);
+        this.edit_audio_category_modal = false;
+      }).catch(error => {
+        console.log(error);
+        this.edit_audio_category_modal = false;
+      });
     },
     new_audio_category() {
       this.formAudioCategory.name = "";
@@ -621,16 +573,13 @@ export default {
         crossDomain: true,
         headers: { "Content-Type": "application/json" },
         data: this.formAudioCategory
-      })
-        .then(response => {
-          console.log(response);
-          var data = response.data;
-          this.$store.commit('updateAudioCategory', data);
-          this.save_audio_category_modal = false;
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      }).then(response => {
+        console.log(response);
+        this.$store.commit('updateAudioCategory', response.data);
+        this.save_audio_category_modal = false;
+      }).catch(error => {
+        console.log(error);
+      });
     },
     create_audio_category() {
       axios({
@@ -640,16 +589,13 @@ export default {
         crossDomain: true,
         headers: { "Content-Type": "application/json" },
         data: this.formAudioCategory
-      })
-        .then(response => {
-          console.log(response);
-          var data = response.data;
-          this.$store.commit('addAudioCategory', data);
-          this.create_audio_category_modal = false;
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      }).then(response => {
+        console.log(response);
+        this.$store.commit('addAudioCategory', response.data);
+        this.create_audio_category_modal = false;
+      }).catch(error => {
+        console.log(error);
+      });
     },
   },
   created() {
