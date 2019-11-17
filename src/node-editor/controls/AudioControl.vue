@@ -7,9 +7,9 @@
       <input-text v-if="this.key === 'text'" :initial="this.getData('text')" @input="onSelect"></input-text>
       <audio-select v-else :initial="this.getData('audio')" @select="onSelect"></audio-select>
     </div>
-    <div class="grid-item">
+    <!-- <div class="grid-item">
       <action-select :initial="this.getData('action')" @select="onActionSelect"></action-select>
-    </div>
+    </div> -->
   </div>
 </template>
 
