@@ -33,7 +33,6 @@ export default {
   }),
   watch: {
     async editorJson(val, oldVal) {
-      console.log("editor-json changed");
       await this.editor.fromJSON(JSON.parse(this.editorJson));
       this.setDiagram(this.editorJson);
       this.resize();
@@ -50,13 +49,13 @@ export default {
   },
   mounted() {
     var components = [
-      new NumComponent(),
-      new AddComponent(),
+      // new NumComponent(),
+      // new AddComponent(),
       new AudioComponent(),
       new PresenComponent(),
       new EndComponent(),
       new TTSComponent(),
-      new RecogComponent("Generos", ["hombre", "mujer"])
+      // new RecogComponent("Generos", ["hombre", "mujer"])
     ];
     this.recogs.forEach(recog => {
       components.push(new WordComponent(recog.name, recog.outputs));
