@@ -48,8 +48,6 @@ export default {
         axios({
           method: "get",
           url: config.backend + "/api/words/" + query,
-          withCredentials: true,
-          crossDomain: true
         })
           .then(words => {
             this.loading = false;

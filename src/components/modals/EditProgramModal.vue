@@ -58,8 +58,6 @@ export default {
       axios({
         method: this.http_method,
         url: this.backend + "/api/programs" + this.url_sufix,
-        withCredentials: true,
-        crossDomain: true,
         headers: { "Content-Type": "application/json" },
         data: this.formProgram
       }).then(response => {

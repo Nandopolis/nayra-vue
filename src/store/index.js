@@ -81,8 +81,6 @@ export default new Vuex.Store({
       axios({
         method: "get",
         url: config.backend + "/api/programs",
-        withCredentials: true,
-        crossDomain: true
       })
         .then(programs => {
           commit('setPrograms', programs.data);
@@ -95,8 +93,6 @@ export default new Vuex.Store({
       axios({
         method: "get",
         url: config.backend + "/api/audios",
-        withCredentials: true,
-        crossDomain: true
       })
         .then(audios => {
           commit('setAudios', audios.data);
@@ -109,8 +105,6 @@ export default new Vuex.Store({
       axios({
         method: "get",
         url: config.backend + "/api/audios/categories",
-        withCredentials: true,
-        crossDomain: true
       })
         .then(audio_categories => {
           commit('setAudioCategories', audio_categories.data);
@@ -123,8 +117,6 @@ export default new Vuex.Store({
       axios({
         method: "get",
         url: config.backend + "/api/actions",
-        withCredentials: true,
-        crossDomain: true
       })
         .then(actions => {
           commit('setActions', actions.data);
@@ -137,8 +129,6 @@ export default new Vuex.Store({
       axios({
         method: "get",
         url: config.backend + "/api/words",
-        withCredentials: true,
-        crossDomain: true
       })
         .then(words => {
           commit('setWords', words.data);

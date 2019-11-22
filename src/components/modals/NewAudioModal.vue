@@ -66,8 +66,6 @@ export default {
       axios({
         method: "post",
         url: this.backend + "/api/audios",
-        withCredentials: true,
-        crossDomain: true,
         mimeType: "multipart/form-data",
         data: form
       }).then(response => {

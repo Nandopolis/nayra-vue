@@ -54,8 +54,6 @@ export default {
       axios({
         method: "put",
         url: this.backend + "/api/audios/" + this.audioId,
-        withCredentials: true,
-        crossDomain: true,
         headers: { "Content-Type": "application/json" },
         data: this.formAudio
       }).then(response => {
