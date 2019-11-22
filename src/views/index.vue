@@ -288,9 +288,7 @@ export default {
           this.toggleRunStop();
           axios({
             method: "get",
-            url: this.backend + "/api/programs/" + this.openedDiagram.id + "/run" + "?proc=" + this.processing,
-            withCredentials: true,
-            crossDomain: true
+            url: this.backend + "/api/programs/" + this.openedDiagram.id + "/run" + "?proc=" + this.processing
           }).then(response => {
             console.log(response);
             this.toggleRunStop();
@@ -303,9 +301,7 @@ export default {
           this.toggleRunStop();
           axios({
             method: "get",
-            url: this.backend + "/api/programs/stop",
-            withCredentials: true,
-            crossDomain: true
+            url: this.backend + "/api/programs/stop"
           }).then(response => {
             console.log(response);
             this.toggleRunStop();
