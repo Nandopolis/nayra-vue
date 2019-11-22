@@ -88,46 +88,14 @@
         </Row>
         
       </Content>
-
-      <!-- Footer -->
-      <!-- <Footer class="layout-footer-center">{{diagram}}</Footer> -->
       
       <!-- Open diagram Drawer -->
       <Drawer v-model="open_modal" title="Saved programs" width="70%">
         <Table v-if="programs" highlight-row :columns="columns" :data="programs" @on-current-change="open"></Table>
       </Drawer>
 
-      <!-- Save as diagram Modal -->
-      <Modal v-model="save_modal" title="Save diagram" width="40%">
-        <Form :model="formSave" :rules="ruleSave">
-          <FormItem label="Name">
-            <Input type="text" v-model="formSave.name" placeholder="name"></Input>
-          </FormItem>
-          <FormItem label="Description">
-            <Input type="text" v-model="formSave.description" placeholder="Description"></Input>
-          </FormItem>
-        </Form>
-        <div slot="footer">
-          <Button style="margin-right: 8px" type="error" @click="save_modal=false">Cancel</Button>
-          <Button type="primary" @click="save">Save</Button>
-        </div>
-      </Modal>
-
-      <!-- Edit diagram Modal -->
-      <Modal v-model="rename_modal" title="Edit diagram" width="40%">
-        <Form :model="formSave" :rules="ruleSave">
-          <FormItem label="Name">
-            <Input type="text" v-model="formSave.name" placeholder="name"></Input>
-          </FormItem>
-          <FormItem label="Description">
-            <Input type="text" v-model="formSave.description" placeholder="description"></Input>
-          </FormItem>
-        </Form>
-        <div slot="footer">
-          <Button type="error" @click="rename_modal=false">Cancel</Button>
-          <Button type="primary" @click="update">Save</Button>
-        </div>
-      </Modal>
+      <!-- Edit and Save as Program Modal -->
+      <EditProgramModal :show.sync="rename_modal" :program.sync="openedDiagram" ref="editProgram"/>
 
       <!-- Delete diagram Drawer -->
       <Drawer v-model="delete_modal" title="Delete Program" width="70%">
@@ -146,56 +114,16 @@
           </template>
         </Table>
         <div class="demo-drawer-footer">
-          <Button type="primary" @click="rename_audio">Edit</Button>
+          <Button type="primary" @click="rename_audio_modal=true">Edit</Button>
           <Button type="error" @click="delete_audio">Delete</Button>
         </div>
       </Drawer>
 
       <!-- Edit audio Modal -->
-      <Modal v-model="rename_audio_modal" title="Edit audio" width="40%">
-        <Form :model="formAudio">
-          <FormItem label="Category">
-            <Select v-model="formAudio.category_id">
-              <Option v-for="item in audioCategories" :value="item.id" :key="item.id">
-                {{ item.name }}
-              </Option>
-            </Select>
-          </FormItem>
-          <FormItem label="Content">
-            <Input type="textarea" v-model="formAudio.content" :autosize="{minRows: 5}" placeholder="audio content"></Input>
-          </FormItem>
-        </Form>
-        <div slot="footer">
-          <Button type="error" @click="rename_audio_modal=false">Cancel</Button>
-          <Button type="primary" @click="rename_content_audio">Save</Button>
-        </div>
-      </Modal>
+      <EditAudioModal :show.sync="rename_audio_modal" :audio-id="audio_id"/>
 
-      <!-- Upload audio Drawer -->
-      <Drawer v-model="upld_audio_modal" title="Upload audio" width="50%">
-        <Form :model="formAudio">
-          <FormItem label="Category">
-            <Select v-model="formAudio.category_id">
-              <Option v-for="item in audioCategories" :value="item.id" :key="item.id">
-                {{ item.name }}
-              </Option>
-            </Select>
-          </FormItem>
-          <FormItem label="Content">
-            <Input type="textarea" v-model="formAudio.content" :autosize="{minRows: 5}" placeholder="audio content"></Input>
-          </FormItem>
-          <FormItem label="File">
-            <br>
-            <Upload :before-upload="handleUpload" :action="backend + '/api/audios'">
-              <Button icon="md-cloud-upload">{{file.name || "Select the file to upload"}}</Button>
-            </Upload>
-          </FormItem>
-        </Form>
-        <div class="item demo-drawer-footer">
-          <Button style="margin-right: 8px" type="error" @click="upld_audio_modal=false">Cancel</Button>
-          <Button type="primary" @click="upload_audio">Upload</Button>
-        </div>
-      </Drawer>
+      <!-- Upload audio Modal -->
+      <NewAudioModal :show.sync="upld_audio_modal"/>
 
       <!-- Edit audio_category Drawer -->
       <Drawer v-model="edit_audio_category_modal" title="Manage Audio Categoriess" width="70%">
@@ -236,7 +164,10 @@
   </div>
 </template>
 <script>
-import ReteComp from "./ReteComp";
+import ReteComp from "../components/ReteComp";
+import EditAudioModal from "../components/modals/EditAudioModal";
+import EditProgramModal from "../components/modals/EditProgramModal";
+import NewAudioModal from "../components/modals/NewAudioModal";
 import * as Diagrams from "../libs/SavedDiagrams.js";
 import axios from "axios";
 import config from "../config/config.js";
@@ -245,7 +176,7 @@ import deepEqual from "deep-equal";
 export default {
   name: "Index",
   components: {
-    ReteComp
+    ReteComp, EditAudioModal, EditProgramModal, NewAudioModal
   },
   data: () => ({
     backend: config.backend,
@@ -288,7 +219,6 @@ export default {
       { title: "Name", key: "name" },
       { title: "Modified Date", key: "modified" },
     ],
-
     formAudioCategory: { name: "" },
     create_audio_category_modal: false,
     save_audio_category_modal: false,
@@ -300,27 +230,10 @@ export default {
       { title: "Description", key: "content" },
       { title: "Category", slot: "category", sortable: true, sortType: "asc" }
     ],
-    audioContent: "",
-    save_modal: false,
-    formSave: { name: "", description: "", content: {} },
-    ruleSave: {
-      name: [
-        { required: true, message: "Please fill in the name.", trigger: "blur" }
-      ],
-      description: [
-        {
-          required: true,
-          message: "Please fill in the description.",
-          trigger: "blur"
-        }
-      ]
-    },
     delete_modal: false,
     rename_modal: false,
     rename_audio_modal: false,
     upld_audio_modal: false,
-    formAudio: { content: "", category_id: "" },
-    file: "",
     processing: "offline",
   }),
   computed: {
@@ -344,7 +257,10 @@ export default {
     this.$store.dispatch('loadWords');
   },
   methods: {
-    getAudioCategory(id) { return this.$store.getters.audio_category(id); },
+    getAudioCategory(id) {
+      var audio_category = this.$store.getters.audio_category(id);
+      return audio_category ? audio_category : {};
+    },
     action(name) {
       console.log(name);
       switch (name) {
@@ -352,29 +268,22 @@ export default {
           this.open_modal = true;
           break;
         case "save":
-          this.formSave.name = this.openedDiagram.name;
-          this.formSave.description = this.openedDiagram.description;
-          this.save_modal = true;
+          this.rename_modal = true;
           break;
         case "delete":
           this.delete_modal = true;
           break;
         case "rename":
-          this.formSave.name = this.openedDiagram.name;
-          this.formSave.description = this.openedDiagram.description;
           this.rename_modal = true;
-          break;
-        case "new":
-          this.openedDiagram = Diagrams.newEditor;
           break;
         case "upload_audio":
           this.upld_audio_modal = true;
-          this.file = "";
-          this.formAudio.content = "";
-          this.formAudio.category = "";
           break;
         case "edit_audio":
           this.edit_audio_modal = true;
+          break;
+        case "new":
+          this.openedDiagram = Diagrams.newEditor;
           break;
         case "edit_audio_category":
           this.edit_audio_category_modal = true;
@@ -424,25 +333,6 @@ export default {
       this.openedDiagram = this.$store.getters.program(this.diagram_id);
       this.open_modal = false;
     },
-    save() {
-      this.formSave.content = this.diagram;
-      axios({
-        method: "post",
-        url: this.backend + "/api/programs",
-        withCredentials: true,
-        crossDomain: true,
-        headers: { "Content-Type": "application/json" },
-        data: this.formSave
-      }).then(response => {
-        console.log(response);
-        this.$store.commit('addProgram', response.data);
-        this.diagram_id = response.data.id;
-        this.openedDiagram = response.data;
-        this.save_modal = false;
-      }).catch(error => {
-        console.log(error);
-      });
-    },
     del() {
       axios({
         method: "delete",
@@ -458,53 +348,9 @@ export default {
       });
     },
     update_content() {
-      this.formSave.name = this.openedDiagram.name;
-      this.formSave.description = this.openedDiagram.description;
-      this.update();
-    },
-    update() {
-      this.formSave.content = this.diagram;
-      axios({
-        method: "put",
-        url: this.backend + "/api/programs/" + this.openedDiagram.id,
-        withCredentials: true,
-        crossDomain: true,
-        headers: { "Content-Type": "application/json" },
-        data: this.formSave
-      }).then(response => {
-        console.log(response);
-        this.$store.commit('updateProgram', response.data)
-        this.openedDiagram = response.data;
-        this.rename_modal = false;
-      }).catch(error => {
-        console.log(error);
-        this.rename_modal = false;
-      });
+      this.$refs["editProgram"].send();
     },
     resize() { this.$refs["reteComp"].resize(); },
-    handleUpload(file) {
-      this.file = file;
-      return false;
-    },
-    upload_audio() {
-      let form = new FormData();
-      form.append("content", this.formAudio.content);
-      form.append("category_id", this.formAudio.category_id);
-      form.append("file", this.file);
-      axios({
-        method: "post",
-        url: this.backend + "/api/audios",
-        withCredentials: true,
-        crossDomain: true,
-        mimeType: "multipart/form-data",
-        data: form
-      }).then(response => {
-        this.upld_audio_modal = false;
-        this.$store.commit('addAudio', response.data);
-      }).catch(error => {
-        console.log(error);
-      });
-    },
     delete_audio() {
       axios({
         method: "delete",
@@ -517,29 +363,6 @@ export default {
       }).catch(error => {
         console.log(error);
         this.edit_audio_modal = false;
-      });
-    },
-    rename_audio() {
-      var audio = this.$store.getters.audio(this.audio_id)
-      this.formAudio.content = audio.content;
-      this.formAudio.category_id = audio.category_id;
-      this.rename_audio_modal = true;
-    },
-    rename_content_audio() {
-      axios({
-        method: "put",
-        url: this.backend + "/api/audios/" + this.audio_id,
-        withCredentials: true,
-        crossDomain: true,
-        headers: { "Content-Type": "application/json" },
-        data: this.formAudio
-      }).then(response => {
-        console.log(response);
-        this.$store.commit('delAudio', this.audio_id);
-        this.$store.commit('addAudio', response.data);
-        this.rename_audio_modal = false;
-      }).catch(error => {
-        console.log(error);
       });
     },
     delete_audio_category() {
