@@ -90,24 +90,24 @@
       </Content>
       
       <!-- Open diagram Drawer -->
-      <Drawer v-model="open_modal" title="Saved programs" width="70%">
+      <Drawer v-model="modals.open" title="Saved programs" width="70%">
         <Table v-if="programs" highlight-row :columns="columns" :data="programs" @on-current-change="open"></Table>
       </Drawer>
 
       <!-- Edit and Save as Program Modal -->
-      <EditProgramModal :show.sync="rename_modal" :program.sync="openedDiagram" ref="editProgram"/>
+      <EditProgramModal :show.sync="modals.rename" :program.sync="openedDiagram" ref="editProgram"/>
 
       <!-- Delete diagram Drawer -->
-      <Drawer v-model="delete_modal" title="Delete Program" width="70%">
+      <Drawer v-model="modals.delete" title="Delete Program" width="70%">
         <Table v-if="programs" highlight-row :columns="columns" :data="programs" @on-current-change="val=>diagram_id=val.id"></Table>
         <div class="item demo-drawer-footer">
-          <Button style="margin-right: 8px" type="primary" @click="delete_modal=false">Cancel</Button>
+          <Button style="margin-right: 8px" type="primary" @click="modals.delete=false">Cancel</Button>
           <Button type="error" @click="del">Delete</Button>
         </div>
       </Drawer>
 
       <!-- Edit audio Drawer -->
-      <Drawer v-model="edit_audio_modal" title="Manage Audios" width="70%">
+      <Drawer v-model="modals.edit_audio" title="Manage Audios" width="70%">
         <Table highlight-row v-if="audios" :columns="columns_audio" :data="audios" @on-current-change="val=>audio_id=val.id">
           <template slot-scope="{row}" slot="category">
             {{ getAudioCategory(row.category_id).name }}
@@ -123,10 +123,10 @@
       <EditAudioModal :show.sync="rename_audio_modal" :audio-id="audio_id"/>
 
       <!-- Upload audio Modal -->
-      <NewAudioModal :show.sync="upld_audio_modal"/>
+      <NewAudioModal :show.sync="modals.upload_audio"/>
 
       <!-- Edit audio_category Drawer -->
-      <Drawer v-model="edit_audio_category_modal" title="Manage Audio Categoriess" width="70%">
+      <Drawer v-model="modals.audio_category" title="Manage Audio Categoriess" width="70%">
         <Button type="primary" style="margin-bottom: 15px;" icon="md-add" @click="new_audio_category">New</Button>
         <Table highlight-row v-if="audioCategories" :columns="columns_audio_category" :data="audioCategories" @on-current-change="val=>audio_category_id=val.id"></Table>
         <div class="demo-drawer-footer">
@@ -180,6 +180,14 @@ export default {
   },
   data: () => ({
     backend: config.backend,
+    modals: {
+      open: false,
+      delete: false,
+      rename: false,
+      upload_audio: false,
+      edit_audio: false,
+      audio_category: false
+    },
     header_menus: [
       {
         id: 1, name: "1", visible: true, display: "Diagrams", icon: "ios-code",
@@ -196,7 +204,7 @@ export default {
         items: [
           { id: 1, name: "upload_audio", display: "Upload", icon: "md-cloud-upload" },
           { id: 2, name: "edit_audio", display: "Manage", icon: "md-clipboard" },
-          { id: 3, name: "edit_audio_category", display: "Categories", icon: "logo-buffer" },
+          { id: 3, name: "audio_category", display: "Categories", icon: "logo-buffer" },
         ]
       },
       { id: 3, name: "run", display: "Run", icon: "ios-play", visible: true },
@@ -204,7 +212,6 @@ export default {
       { id: 5, name: "help", display: "Help", icon: "md-help", visible: true }
     ],
     openedDiagram: {},
-    open_modal: false,
     diagram_id: 0,
     columns: [
       { title: "id", key: "id", width: 65, sortable: true, sortType: "desc" },
@@ -212,7 +219,6 @@ export default {
       { title: "Description", key: "description" },
       { title: "Updated at", key: "modified", sortable: true }
     ],
-    edit_audio_category_modal: false,
     audio_category_id: 0,
     columns_audio_category: [
       { title: "id", key: "id", width: 65, sortable: true },
@@ -222,7 +228,6 @@ export default {
     formAudioCategory: { name: "" },
     create_audio_category_modal: false,
     save_audio_category_modal: false,
-    edit_audio_modal: false,
     audio_id: 0,
     columns_audio: [
       { title: "id", key: "id", width: 65, sortable: true },
@@ -230,10 +235,7 @@ export default {
       { title: "Description", key: "content" },
       { title: "Category", slot: "category", sortable: true, sortType: "asc" }
     ],
-    delete_modal: false,
-    rename_modal: false,
     rename_audio_modal: false,
-    upld_audio_modal: false,
     processing: "offline",
   }),
   computed: {
@@ -254,43 +256,36 @@ export default {
     this.$store.dispatch('loadAudioCategories');
     this.$store.dispatch('loadAudios');
     this.$store.dispatch('loadActions');
-    this.$store.dispatch('loadWords');
   },
   methods: {
     getAudioCategory(id) {
       var audio_category = this.$store.getters.audio_category(id);
       return audio_category ? audio_category : {};
     },
+    toggleRunStop() {
+      var state = this.header_menus[2].visible;
+      this.header_menus[2].visible = !state;
+      this.header_menus[3].visible = state;
+    },
     action(name) {
       console.log(name);
       switch (name) {
         case "open":
-          this.open_modal = true;
+        case "delete":
+        case "rename":
+        case "upload_audio":
+        case "edit_audio":
+        case "audio_category":
+          this.modals[name] = true;
           break;
         case "save":
-          this.rename_modal = true;
-          break;
-        case "delete":
-          this.delete_modal = true;
-          break;
-        case "rename":
-          this.rename_modal = true;
-          break;
-        case "upload_audio":
-          this.upld_audio_modal = true;
-          break;
-        case "edit_audio":
-          this.edit_audio_modal = true;
+          this.modals.rename = true;
           break;
         case "new":
           this.openedDiagram = Diagrams.newEditor;
           break;
-        case "edit_audio_category":
-          this.edit_audio_category_modal = true;
-          break;
         case "run":
-          this.header_menus[2].visible = false;
-          this.header_menus[3].visible = true;
+          this.toggleRunStop();
           axios({
             method: "get",
             url: this.backend + "/api/programs/" + this.openedDiagram.id + "/run" + "?proc=" + this.processing,
@@ -298,17 +293,14 @@ export default {
             crossDomain: true
           }).then(response => {
             console.log(response);
-            this.header_menus[2].visible = true;
-            this.header_menus[3].visible = false;
+            this.toggleRunStop();
           }).catch(error => {
             console.log(error);
-            this.header_menus[2].visible = true;
-            this.header_menus[3].visible = false;
+            this.toggleRunStop();
           });
           break;
         case "stop":
-          this.header_menus[2].visible = true;
-          this.header_menus[3].visible = false;
+          this.toggleRunStop();
           axios({
             method: "get",
             url: this.backend + "/api/programs/stop",
@@ -316,33 +308,27 @@ export default {
             crossDomain: true
           }).then(response => {
             console.log(response);
-            this.header_menus[2].visible = false;
-            this.header_menus[3].visible = true;
+            this.toggleRunStop();
           }).catch(error => {
             console.log(error);
-            this.header_menus[2].visible = false;
-            this.header_menus[3].visible = true;
+            this.toggleRunStop();
           });
-          break;
-        default:
           break;
       }
     },
     open(val) {
       this.diagram_id = val.id;
       this.openedDiagram = this.$store.getters.program(this.diagram_id);
-      this.open_modal = false;
+      this.modals.open = false;
     },
     del() {
       axios({
         method: "delete",
         url: this.backend + "/api/programs/" + this.diagram_id,
-        withCredentials: true,
-        crossDomain: true
       }).then(response => {
         console.log(response);
         this.$store.commit('delProgram', this.diagram_id)
-        this.delete_modal = false;
+        this.modals.delete = false;
       }).catch(error => {
         console.log(error);
       });
@@ -355,28 +341,24 @@ export default {
       axios({
         method: "delete",
         url: this.backend + "/api/audios/" + this.audio_id,
-        withCredentials: true,
-        crossDomain: true
       }).then(response => {
         this.$store.commit('delAudio', this.audio_id);
-        this.edit_audio_modal = false;
+        this.modals.edit_audio = false;
       }).catch(error => {
         console.log(error);
-        this.edit_audio_modal = false;
+        this.modals.edit_audio = false;
       });
     },
     delete_audio_category() {
       axios({
         method: "delete",
         url: this.backend + "/api/audios/categories/" + this.audio_category_id,
-        withCredentials: true,
-        crossDomain: true
       }).then(response => {
         this.$store.commit('delAudioCategory', this.audio_category_id);
-        this.edit_audio_category_modal = false;
+        this.modals.audio_category = false;
       }).catch(error => {
         console.log(error);
-        this.edit_audio_category_modal = false;
+        this.modals.audio_category = false;
       });
     },
     new_audio_category() {
@@ -392,8 +374,6 @@ export default {
       axios({
         method: "put",
         url: this.backend + "/api/audios/categories/" + this.audio_category_id,
-        withCredentials: true,
-        crossDomain: true,
         headers: { "Content-Type": "application/json" },
         data: this.formAudioCategory
       }).then(response => {
@@ -408,8 +388,6 @@ export default {
       axios({
         method: "post",
         url: this.backend + "/api/audios/categories",
-        withCredentials: true,
-        crossDomain: true,
         headers: { "Content-Type": "application/json" },
         data: this.formAudioCategory
       }).then(response => {
