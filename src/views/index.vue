@@ -82,11 +82,9 @@
             <Switch size="large" v-model="processing" true-value="online" false-value="offline"/>
           </div>
         </Row>
-        
         <Row :style="{height: 'calc(100vh - 159px)', width: '100%'}">
           <ReteComp :style="{background: '#fff', height: 'calc(100vh - 159px'}" :editor-json="editorJson" ref="reteComp"/>
         </Row>
-        
       </Content>
       
       <!-- Open diagram Drawer -->
@@ -160,6 +158,9 @@
           <Button type="primary" @click="save_audio_category">Save</Button>
         </div>
       </Modal>
+
+      <!-- Help drawer -->
+      <HelpDrawer :show.sync="modals.help"/>
     </Layout>
   </div>
 </template>
@@ -168,6 +169,7 @@ import ReteComp from "../components/ReteComp";
 import EditAudioModal from "../components/modals/EditAudioModal";
 import EditProgramModal from "../components/modals/EditProgramModal";
 import NewAudioModal from "../components/modals/NewAudioModal";
+import HelpDrawer from '../components/drawers/HelpDrawer';
 import * as Diagrams from "../libs/SavedDiagrams.js";
 import axios from "axios";
 import config from "../config/config.js";
@@ -176,11 +178,12 @@ import deepEqual from "deep-equal";
 export default {
   name: "Index",
   components: {
-    ReteComp, EditAudioModal, EditProgramModal, NewAudioModal
+    ReteComp, EditAudioModal, EditProgramModal, NewAudioModal, HelpDrawer
   },
   data: () => ({
     backend: config.backend,
     modals: {
+      help: false,
       open: false,
       delete: false,
       rename: false,
@@ -270,6 +273,7 @@ export default {
     action(name) {
       console.log(name);
       switch (name) {
+        case "help":
         case "open":
         case "delete":
         case "rename":
