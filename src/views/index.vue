@@ -88,7 +88,7 @@
       </Content>
       
       <!-- Open diagram Drawer -->
-      <Drawer v-model="modals.open" title="Saved programs" width="70%">
+      <Drawer v-model="modals.open" title="Saved diagrams" width="70%">
         <Table v-if="programs" highlight-row :columns="columns" :data="programs" @on-current-change="open"></Table>
       </Drawer>
 
@@ -96,7 +96,7 @@
       <EditProgramModal :show.sync="modals.rename" :program.sync="openedDiagram" ref="editProgram"/>
 
       <!-- Delete diagram Drawer -->
-      <Drawer v-model="modals.delete" title="Delete Program" width="70%">
+      <Drawer v-model="modals.delete" title="Delete diagram" width="70%">
         <Table v-if="programs" highlight-row :columns="columns" :data="programs" @on-current-change="val=>diagram_id=val.id"></Table>
         <div class="item demo-drawer-footer">
           <Button style="margin-right: 8px" type="primary" @click="modals.delete=false">Cancel</Button>
