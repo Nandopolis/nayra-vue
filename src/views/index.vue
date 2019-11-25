@@ -82,7 +82,7 @@
             <Switch size="large" v-model="processing" true-value="online" false-value="offline"/>
           </div>
         </Row>
-        <Row :style="{height: 'calc(100vh - 159px)', width: '100%'}">
+        <Row :style="{height: 'calc(100vh - 160px)', width: '100%'}">
           <ReteComp :style="{background: '#fff', height: 'calc(100vh - 159px'}" :editor-json="editorJson" ref="reteComp"/>
         </Row>
       </Content>
