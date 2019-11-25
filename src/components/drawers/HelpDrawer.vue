@@ -45,7 +45,7 @@ export default {
         {name: 4, title: "Setting a text to speech phrase", video: "set_tts_component"},
         {name: 5, title: "Presentation-Terminate components", video: "terminate_component"},
         {name: 6, title: "Connecting components", video: "connection"},
-        {name: 7, title: "Rerouting a component", video: "connection_reroute"},
+        {name: 7, title: "Rerouting a connection", video: "connection_reroute"},
         {name: 8, title: "Deleting a component", video: "delete_component"},
         {name: 9, title: "Zoom", video: "zoom"},
         {name: 10, title: "Resize", video: "resize"},
