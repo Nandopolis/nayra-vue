@@ -75,7 +75,7 @@
           </Breadcrumb>
           <ButtonGroup shape="circle" :style="{margin: '0 10px 0', float: 'right'}">
             <Button @click="resize"><Icon type="md-resize" /> Resize </Button>
-            <Button @click="update_content"> Save <Icon type="md-done-all" /></Button>
+            <Button @click="update_content" :disabled="!savable || openedDiagram.id==0"> Save <Icon type="md-done-all"/></Button>
           </ButtonGroup>
           <div :style="{margin: '5px', float: 'right', fontSize:'14px'}">
             {{processText}}
