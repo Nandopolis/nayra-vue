@@ -51,15 +51,15 @@ export default {
     var components = [
       // new NumComponent(),
       // new AddComponent(),
-      new AudioComponent(),
       new PresenComponent(),
-      new EndComponent(),
+      new AudioComponent(),
       new TTSComponent(),
       // new RecogComponent("Generos", ["hombre", "mujer"])
     ];
     this.recogs.forEach(recog => {
       components.push(new WordComponent(recog.name, recog.outputs));
     });
+    components.push(new EndComponent());
 
     this.editor = new Rete.NodeEditor("demo@0.1.0", this.$refs.rete);
     this.editor.use(ConnectionPlugin);
