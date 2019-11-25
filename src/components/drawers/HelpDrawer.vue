@@ -51,14 +51,14 @@ export default {
         {name: 10, title: "Resize", video: "resize"},
         {name: 11, title: "Minimap", video: "minimap"},
       ]},
-      {title: "Programs", lessons: [
-        {name: 12, title: "Creating a new program", video: "create_program"},
-        {name: 13, title: "Saving a new program", video: "save_program"},
+      {title: "Diagrams", lessons: [
+        {name: 12, title: "Creating a new diagram", video: "create_program"},
+        {name: 13, title: "Saving a new diagram", video: "save_program"},
         {name: 14, title: "Quick save", video: "save_opened_program"},
-        {name: 15, title: "Renaming a program", video: "rename_program"},
-        {name: 16, title: "Opening a program", video: "open_program"},
-        {name: 17, title: "Deleting a program", video: "delete_program"},
-        {name: 18, title: "Running and stoping a program", video: "run_stop_program"},
+        {name: 15, title: "Renaming a diagram", video: "rename_program"},
+        {name: 16, title: "Opening a diagram", video: "open_program"},
+        {name: 17, title: "Deleting a diagram", video: "delete_program"},
+        {name: 18, title: "Running and stoping a diagram", video: "run_stop_program"},
       ]},
       {title: "Audios", lessons: [
         {name: 19, title: "Uploading an audio", video: "upload_audio"},
