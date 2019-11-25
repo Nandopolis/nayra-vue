@@ -1,8 +1,8 @@
 <template>
-  <Drawer v-model="localShow" title="Help" width="70%">
+  <Drawer v-model="localShow" title="Help" width="70%" :styles="{padding: 0}">
     <Row v-if="localShow">
       <Col span="6">
-        <!-- <Scroll height="80vh"> -->
+        <!-- <Scroll height="100px"> -->
           <Menu width="auto" @on-select="(name) => step=name" :active-name="step">
             <MenuGroup v-for="topic in topics" :key="topic.title" :title="topic.title">
               <MenuItem v-for="lesson in topic.lessons" :key="lesson.name" :name="lesson.name" class="menu-item">
@@ -13,16 +13,17 @@
         <!-- </Scroll> -->
       </Col>
       <Col span="18" style="padding: 10px">
-        <Carousel v-model="step">
+        <Carousel v-model="step" dots="outside">
           <CarouselItem v-for="(lesson, index) in lessons" :key="lesson.name">
-            <!-- <div> -->
             <Row type="flex" justify="center">
-              <span>{{lesson.title}}</span>
+              <h2 :style="{marginBottom:'20px'}">{{lesson.title}}</h2>
             </Row>
             <Row v-if="index == step" type="flex" justify="center">
               <video autoplay loop muted playsinline width="80%" height="auto" :src="`/videos/${lesson.video}.webm`"></video>
             </Row>
-            <!-- </div> -->
+            <Row type="flex" justify="center">
+              <p :style="{margin:'20px'}">{{lesson.title}}</p>
+            </Row>
           </CarouselItem>
         </Carousel>
       </Col>
@@ -60,7 +61,7 @@ export default {
         {name: 18, title: "Running and stoping a program", video: "run_stop_program"},
       ]},
       {title: "Audios", lessons: [
-        {name: 19, title: "Uploading n audio", video: "upload_audio"},
+        {name: 19, title: "Uploading an audio", video: "upload_audio"},
         {name: 20, title: "Editing an audio", video: "edit_audio"},
         {name: 21, title: "Deleting an audio", video: "delete_audio"},
       ]},
@@ -71,28 +72,21 @@ export default {
       // ]},
     ],
     step: 0,
-    ready: false
+    lessons: []
   }),
   computed: {
     localShow: {
       get() { return this.show; },
       set(value) { this.$emit('update:show', value); }
     },
-    lessons() {
-      var lessons = [];
-      this.topics.forEach(topic => lessons.push(...topic.lessons));
-      return lessons;
-    }
   },
-  created() { this.ready = true; },
+  created() { this.topics.forEach(topic => this.lessons.push(...topic.lessons)); },
   methods: {}
 }
 </script>
 
 <style>
   .menu-item {
-    /* height: 30px; */
-    /* line-height: 30px; */
     padding: 5px 20px !important;
   }
   .menu-ivu-menu-item-group-title {
