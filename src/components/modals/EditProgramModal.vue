@@ -1,5 +1,5 @@
 <template>
-  <Modal v-model="localShow" title="Edit diagram" width="40%">
+  <Modal v-model="localShow" :title="title" width="40%">
     <Form :model="formProgram">
       <FormItem label="Name">
         <Input type="text" v-model="formProgram.name" placeholder="name"></Input>
@@ -33,6 +33,7 @@ export default {
       get() { return this.show; },
       set(value) { this.$emit('update:show', value); }
     },
+    title() { return this.program.id ? "Edit diagram" : "Save diagram" },
     http_method() { return this.program.id ? "put" : "post" },
     url_sufix() { return this.program.id ? "/" + this.program.id : "" },
     commit_type() { return this.program.id ? "updateProgram" : "addProgram" }
