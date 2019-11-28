@@ -22,7 +22,7 @@
               <video autoplay loop muted playsinline width="80%" height="auto" :src="`/videos/${lesson.video}.webm`"></video>
             </Row>
             <Row type="flex" justify="center">
-              <p :style="{margin:'40px'}">{{lesson.desc}}</p>
+              <p :style="{margin:'40px', fontSize: '14px'}">{{lesson.desc}}</p>
             </Row>
           </CarouselItem>
         </Carousel>
