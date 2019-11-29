@@ -78,64 +78,80 @@ export default new Vuex.Store({
   },
   actions: {
     loadPrograms({commit}) {
-      axios({
-        method: "get",
-        url: config.backend + "/api/programs",
-      })
+      return new Promise((resolve, reject) => {
+        axios({
+          method: "get",
+          url: config.backend + "/api/programs",
+        })
         .then(programs => {
           commit('setPrograms', programs.data);
+          resolve(programs);
         })
         .catch(error => {
           console.log(error);
+          reject(error);
         });
+      });
     },
     loadAudios({commit}) {
-      axios({
-        method: "get",
-        url: config.backend + "/api/audios",
-      })
+      return new Promise((resolve, reject) => {
+        axios({
+          method: "get",
+          url: config.backend + "/api/audios",
+        })
         .then(audios => {
           commit('setAudios', audios.data);
+          resolve(audios);
         })
         .catch(error => {
           console.log(error);
+          reject(error);
         });
+      });
     },
     loadAudioCategories({commit}) {
-      axios({
-        method: "get",
-        url: config.backend + "/api/audios/categories",
-      })
+      return new Promise((resolve, reject) => {
+        axios({
+          method: "get",
+          url: config.backend + "/api/audios/categories",
+        })
         .then(audio_categories => {
           commit('setAudioCategories', audio_categories.data);
+          resolve(audio_categories);
         })
         .catch(error => {
           console.log(error);
+          reject(error);
         });
+      });
     },
     loadActions({commit}) {
-      axios({
-        method: "get",
-        url: config.backend + "/api/actions",
-      })
+      return new Promise((resolve, reject) => {
+        axios({
+          method: "get",
+          url: config.backend + "/api/actions",
+        })
         .then(actions => {
           commit('setActions', actions.data);
+          resolve(actions);
         })
         .catch(error => {
           console.log(error);
+          reject(error);
         });
+      });
     },
     loadWords({commit}) {
       axios({
         method: "get",
         url: config.backend + "/api/words",
       })
-        .then(words => {
-          commit('setWords', words.data);
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      .then(words => {
+        commit('setWords', words.data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
     }
   },
   mutations: {
