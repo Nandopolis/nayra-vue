@@ -255,10 +255,22 @@ export default {
     }
   },
   mounted() {
-    this.$store.dispatch('loadPrograms');
-    this.$store.dispatch('loadAudioCategories');
-    this.$store.dispatch('loadAudios');
-    this.$store.dispatch('loadActions');
+    this.$store.dispatch('loadPrograms').catch(error => this.$Message.error({
+      content: 'No se pudo recuperar los diagramas, revise su conexión e inténtelo de nuevo.',
+      duration: 10, closable: true
+    }));
+    this.$store.dispatch('loadAudioCategories').catch(error => this.$Message.error({
+      content: 'No se pudo recuperar las categorías, revise su conexión e inténtelo de nuevo.',
+      duration: 10, closable: true
+    }));
+    this.$store.dispatch('loadAudios').catch(error => this.$Message.error({
+      content: 'No se pudo recuperar los audios, revise su conexión e inténtelo de nuevo.',
+      duration: 10, closable: true
+    }));
+    this.$store.dispatch('loadActions').catch(error => this.$Message.error({
+      content: 'No se pudo recuperar las acciones, revise su conexión e inténtelo de nuevo.',
+      duration: 10, closable: true
+    }));
   },
   methods: {
     getAudioCategory(id) {
@@ -331,6 +343,10 @@ export default {
         this.modals.delete = false;
       }).catch(error => {
         console.log(error);
+        this.$Message.error({
+          content: 'No se pudo eliminar el diagrama, revise su conexión e inténtelo de nuevo.',
+          duration: 10, closable: true
+        });
       });
     },
     update_content() {
@@ -343,11 +359,13 @@ export default {
         url: this.backend + "/api/audios/" + this.audio_id,
       }).then(response => {
         this.$store.commit('delAudio', this.audio_id);
-        this.modals.edit_audio = false;
       }).catch(error => {
         console.log(error);
-        this.modals.edit_audio = false;
-      });
+        this.$Message.error({
+          content: 'No se pudo eliminar el audio, revise su conexión e inténtelo de nuevo.',
+          duration: 10, closable: true
+        });
+      }).then(() => this.modals.edit_audio = false);
     },
     delete_audio_category() {
       axios({
@@ -355,11 +373,13 @@ export default {
         url: this.backend + "/api/audios/categories/" + this.audio_category_id,
       }).then(response => {
         this.$store.commit('delAudioCategory', this.audio_category_id);
-        this.modals.audio_category = false;
       }).catch(error => {
         console.log(error);
-        this.modals.audio_category = false;
-      });
+        this.$Message.error({
+          content: 'No se pudo eliminar la ctegoría, revise su conexión e inténtelo de nuevo.',
+          duration: 10, closable: true
+        });
+      }).then(() => this.modals.audio_category = false);
     },
     new_audio_category() {
       this.formAudioCategory.name = "";
@@ -382,6 +402,10 @@ export default {
         this.save_audio_category_modal = false;
       }).catch(error => {
         console.log(error);
+        this.$Message.error({
+          content: 'No se pudo guardar la categoría, revise su conexión e inténtelo de nuevo.',
+          duration: 10, closable: true
+        });
       });
     },
     create_audio_category() {
@@ -396,6 +420,10 @@ export default {
         this.create_audio_category_modal = false;
       }).catch(error => {
         console.log(error);
+        this.$Message.error({
+          content: 'No se pudo crear la categoría, revise su conexión e inténtelo de nuevo.',
+          duration: 10, closable: true
+        });
       });
     },
   },

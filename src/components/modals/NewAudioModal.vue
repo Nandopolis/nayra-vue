@@ -73,6 +73,10 @@ export default {
         this.localShow = false;
       }).catch(error => {
         console.log(error);
+        this.$Message.error({
+          content: 'No se pudo crear el audio, revise su conexión e inténtelo de nuevo.',
+          duration: 10, closable: true
+        });
       }).then(() => this.loading = false);
     }
   }
