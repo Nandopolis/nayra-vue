@@ -51,7 +51,7 @@ export default {
   methods: {
     send() {
       this.loading = true;
-      if (this.formProgram.name == "" && this.formProgram.description == "") {
+      if (!this.show) {
         this.formProgram.name = this.program.name;
         this.formProgram.description = this.program.description;
       }
