@@ -51,7 +51,7 @@ export default {
         {name: 10, title: "Resize", video: "resize", desc: "Para ajustar el zoom a una vista que comprenda a todos los componente utilice el boton 'Resize'."},
         {name: 11, title: "Minimap", video: "minimap", desc: "En la esquina superior derecha del editor se encuentra un minimapa del editor, puede arrastra el minimapa para moverse a través del editor."},
       ]},
-      {title: "Diagrams", lessons: [
+      {title: "Diagramas", lessons: [
         {name: 12, title: "Abrir un nuevo diagrama", video: "create_program", desc: "Para abrir un nuevo diagrama seleccione la opción Create del menú Diagrams."},
         {name: 13, title: "Guardar diagrama", video: "save_program", desc: "Para guardar un diagrama nuevo seleccione la opción 'Save as' en el menú Diagramas y llene los datos del formulario con el nombre del diagrama y una pequeña descripción del diagrama, Esta opción también le permite clonar un diagrama."},
         {name: 14, title: "Guardado rápido", video: "save_opened_program", desc: "Para actualizar el contenido de un diagrama que ya abrió y creó con anterioridad puede utilizar el botón Save, este botón estara habilitado solo cuando se haya abierto un diagrama y este se haya modificado."},
