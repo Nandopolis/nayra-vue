@@ -87,7 +87,7 @@ export default new Vuex.Store({
           resolve(programs);
         })
         .catch(error => {
-          console.log(error);
+          console.error(error);
           reject(error);
         });
       });
@@ -103,7 +103,7 @@ export default new Vuex.Store({
           resolve(audios);
         })
         .catch(error => {
-          console.log(error);
+          console.error(error);
           reject(error);
         });
       });
@@ -119,7 +119,7 @@ export default new Vuex.Store({
           resolve(audio_categories);
         })
         .catch(error => {
-          console.log(error);
+          console.error(error);
           reject(error);
         });
       });
@@ -135,7 +135,7 @@ export default new Vuex.Store({
           resolve(actions);
         })
         .catch(error => {
-          console.log(error);
+          console.error(error);
           reject(error);
         });
       });

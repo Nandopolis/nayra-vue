@@ -72,7 +72,7 @@ export default {
         this.$store.commit('addAudio', response.data);
         this.localShow = false;
       }).catch(error => {
-        console.log(error);
+        console.error(error);
         this.$Message.error({
           content: 'No se pudo crear el audio, revise su conexión e inténtelo de nuevo.',
           duration: 10, closable: true

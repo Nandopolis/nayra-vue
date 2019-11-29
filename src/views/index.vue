@@ -309,7 +309,7 @@ export default {
             console.log(response);
             this.toggleRunStop();
           }).catch(error => {
-            console.log(error);
+            console.error(error);
             this.toggleRunStop();
           });
           break;
@@ -322,7 +322,7 @@ export default {
             console.log(response);
             this.toggleRunStop();
           }).catch(error => {
-            console.log(error);
+            console.error(error);
             this.toggleRunStop();
           });
           break;
@@ -342,7 +342,7 @@ export default {
         this.$store.commit('delProgram', this.diagram_id)
         this.modals.delete = false;
       }).catch(error => {
-        console.log(error);
+        console.error(error);
         this.$Message.error({
           content: 'No se pudo eliminar el diagrama, revise su conexión e inténtelo de nuevo.',
           duration: 10, closable: true
@@ -360,7 +360,7 @@ export default {
       }).then(response => {
         this.$store.commit('delAudio', this.audio_id);
       }).catch(error => {
-        console.log(error);
+        console.error(error);
         this.$Message.error({
           content: 'No se pudo eliminar el audio, revise su conexión e inténtelo de nuevo.',
           duration: 10, closable: true
@@ -374,7 +374,7 @@ export default {
       }).then(response => {
         this.$store.commit('delAudioCategory', this.audio_category_id);
       }).catch(error => {
-        console.log(error);
+        console.error(error);
         this.$Message.error({
           content: 'No se pudo eliminar la ctegoría, revise su conexión e inténtelo de nuevo.',
           duration: 10, closable: true
@@ -401,7 +401,7 @@ export default {
         this.$store.commit('updateAudioCategory', response.data);
         this.save_audio_category_modal = false;
       }).catch(error => {
-        console.log(error);
+        console.error(error);
         this.$Message.error({
           content: 'No se pudo guardar la categoría, revise su conexión e inténtelo de nuevo.',
           duration: 10, closable: true
@@ -419,7 +419,7 @@ export default {
         this.$store.commit('addAudioCategory', response.data);
         this.create_audio_category_modal = false;
       }).catch(error => {
-        console.log(error);
+        console.error(error);
         this.$Message.error({
           content: 'No se pudo crear la categoría, revise su conexión e inténtelo de nuevo.',
           duration: 10, closable: true

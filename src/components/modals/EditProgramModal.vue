@@ -67,7 +67,7 @@ export default {
         this.$emit('update:program', response.data);
         this.localShow = false;
       }).catch(error => {
-        console.log(error);
+        console.error(error);
         this.$Message.error({
           content: 'No se pudo guardar el diagrama, revise su conexión e inténtelo de nuevo.',
           duration: 10, closable: true

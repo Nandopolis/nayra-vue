@@ -54,7 +54,7 @@ export default {
             this.options = words.data;
           })
           .catch(error => {
-            console.log(error);
+            console.error(error);
           });
       } else {
         this.options = [];
