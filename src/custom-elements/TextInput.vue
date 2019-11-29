@@ -1,7 +1,7 @@
 <template>
   <Input
     v-model="value" placeholder="Enter something..."
-    size="large" style="width: 203px" clearable>
+    size="large" :style="{width: '200px', maxWidth: '200px', minWidth: '200px'}" clearable>
     <Icon slot="prepend" type="md-text" />
   </Input>
 </template>

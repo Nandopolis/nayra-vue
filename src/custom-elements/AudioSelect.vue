@@ -3,6 +3,7 @@
     :data="formated_audios"
     v-model="value"
     ref="cascader"
+    :style="{width: '200px', maxWidth: '200px', minWidth: '200px'}"
     size="large"
     trigger="hover"
     placeholder="select an audio"

@@ -1,6 +1,7 @@
 <template>
   <Select
     v-model="value" ref="select"
+    :style="{width: '200px', maxWidth: '200px', minWidth: '200px'}"
     :transfer="true" multiple
     remote :remote-method="remoteWords"
     filterable :loading="loading"

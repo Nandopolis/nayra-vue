@@ -1,5 +1,5 @@
 <template>
-  <Checkbox v-model="single">
+  <Checkbox v-model="single" :style="{width: '200px', maxWidth: '200px', minWidth: '200px'}">
     <span class="checkbox-text"> Text to Speech</span>
   </Checkbox>
 </template>

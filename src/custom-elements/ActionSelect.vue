@@ -2,6 +2,7 @@
   <Cascader 
     :data="formated_actions"
     v-model="value"
+    :style="{width: '200px', maxWidth: '200px', minWidth: '200px'}"
     size="large"
     trigger="hover"
     placeholder="select an action"
