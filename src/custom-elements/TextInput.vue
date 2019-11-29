@@ -17,7 +17,7 @@ export default {
   watch: {
     value() {
       if (this.value) {
-        var normal_string = this.value.replace(/[^a-zA-Z ]/g, "");
+        var normal_string = this.value.replace(/[^a-zA-ZáÁéÉíÍóÓúÚñÑ!¡?¿ ]/g, "");
         this.$emit('input', normal_string);
         this.value = normal_string
       }
