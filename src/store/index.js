@@ -12,7 +12,6 @@ export default new Vuex.Store({
     audios: [],
     audio_categories: [],
     actions: [],
-    words: []
   },
   getters: {
     program: state => id => {
@@ -141,18 +140,6 @@ export default new Vuex.Store({
         });
       });
     },
-    loadWords({commit}) {
-      axios({
-        method: "get",
-        url: config.backend + "/api/words",
-      })
-      .then(words => {
-        commit('setWords', words.data);
-      })
-      .catch(error => {
-        console.log(error);
-      });
-    }
   },
   mutations: {
     setDiagram(state, diagram) {
@@ -206,8 +193,5 @@ export default new Vuex.Store({
     setActions(state, actions) {
       state.actions = actions;
     },
-    setWords(state, words) {
-      state.words = words;
-    }
   }
 });
